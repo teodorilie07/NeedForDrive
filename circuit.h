@@ -13,6 +13,7 @@ private:
 
 public:
     explicit circuit(std::string numeCircuit);
+    ~circuit();
     void addCar(const car& masina);
     void addObst(const obstacol& obst);//adauga obstacol
     void simulat(float dTime);

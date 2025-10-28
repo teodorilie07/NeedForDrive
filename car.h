@@ -14,6 +14,7 @@ private:
 public:
     car(std::string nume, const vector& poz, int fuelInit, int consumMediu);
     car(const car& other);
+    car& operator=(const car& other);
     ~car();
     void uptState(float dtime);
     void acceleratie(const vector& directie, float factor);

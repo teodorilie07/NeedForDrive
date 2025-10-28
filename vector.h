@@ -12,5 +12,5 @@ public:
     float getx() const;
     float gety() const;
     float distance(const vector& other) const;
-    friend std::ostream& operator<<(std::ostream& os, const vector vec);
+    friend std::ostream& operator<<(std::ostream& os, const vector& vec);
 };

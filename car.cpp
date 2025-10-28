@@ -1,11 +1,10 @@
 #include "car.h"
 #include <iostream>
-#include <utility>
 
 car::car(std::string nume, const vector& poz, int combInit, int consum):
-    nume(std:move(nume)), pozitie(poz), viteza(0, 0), fuel(combInit), consum(consum)
+    nume(nume), pozitie(poz), viteza(0, 0), fuel(combInit), consum(consum)
 {
-    std::cout << "Init construct: masina condusa de " << name << "a intrat pe circuit.\n";
+    std::cout << "Init construct: masina condusa de " << nume << "a intrat pe circuit.\n";
 
 }
 
@@ -23,7 +22,7 @@ car& car::operator=(const car& other)
         this->nume = other.nume;
         this->pozitie = other.pozitie;
         this->viteza = other.viteza;
-        this.fuel = other.fuel;
+        this->fuel = other.fuel;
     }
     return *this;
 }
@@ -63,7 +62,7 @@ void car::acceleratie(const vector& directie, float factor)
 void car::brake()
 {
     viteza = vector(0, 0);
-    std::cout << "[INFO] " << name << "a franat brusc!\n";
+    std::cout << "[INFO] " << nume << "a franat brusc!\n";
 
 }
 
@@ -72,7 +71,7 @@ const std::string& car::getNume() const
     return nume;
 }
 
-const vector& car::getPozitie() construct
+const vector& car::getPozitie() const
 {
     return pozitie;
 }

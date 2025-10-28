@@ -4,23 +4,28 @@
 
 circuit::circuit(std::string numeCircuit) : nume(std::move(numeCircuit)) {}
 
-void circuit::addCar(const car& car)
+circuit::~circuit()
 {
-    car.push_back(car);
+    std::cout << "destructor: circuitul " << nume << " se incheie\n";
 }
 
-void circuit::addObst(cost obstacle& obst)
+void circuit::addCar(const car& masina)
 {
-    obstacle.push_back(obst);
+    cars.push_back(masina);
+}
+
+void circuit::addObst(const obstacol& obst)
+{
+    obstacole.push_back(obst);
 }
 
 void circuit::checkCol() //verifica coliziunile
 {
     for(auto& car : cars)
     {
-        for(const auto& obstacle : obstacles)
+        for(const auto& obstacol : obstacole)
         {
-            if(car.getPozitie().distance(obstacle.getPozitie()) < obstacle.getRaza())
+            if(car.getPozitie().distance(obstacol.getPozitie()) < obstacol.getRaza())
             {
             std::cout << "[COLIZIUNE] "<< car.getNume() << " a lovit un obstacol";
                 car.brake();
@@ -29,9 +34,9 @@ void circuit::checkCol() //verifica coliziunile
     }
 }
 
-void circuit::simulate(float dTime)
+void circuit::simulat(float dTime)
 {
-    std::cout << "\n=== SIM STEP (Time: " << dTime << " s) in " << nume << "==\n";
+    std::cout << "\n=== SIM (timp: " << dTime << " s) in " << nume << "==\n";
     if(cars.empty())
     {
         std::cout << "Nu sunt masini pe circuit.\n";
@@ -39,7 +44,7 @@ void circuit::simulate(float dTime)
     }
     for (auto& car : cars)
     {
-        car.accelerateeleratie(vector(1.0, 2.0), 2.5);
+        car.acceleratie(vector(1.0, 2.0), 2.5);
         car.uptState(dTime);
     }
     checkCol();
