@@ -6,11 +6,11 @@
 #include "kit.h"
 #include "boost.h"
 
-circuit::circuit(std::string numeCircuit) : nume(std::move(numeCircuit)) {}
+circuit::circuit(std::string numeCircuit) : numeCircuit(std::move(numeCircuit)) {}
 
 circuit::~circuit()
 {
-    std::cout << "destructor: circuitul " << nume << " se incheie\n";
+    std::cout << "destructor: circuitul " << numeCircuit << " se incheie\n";
 }
 
 void circuit::addCar(const car& masina)
@@ -58,7 +58,7 @@ void circuit::checkPwrUps()
 
 void circuit::simulat(float dTime)
 {
-    std::cout << "\n=== SIM (timp: " << dTime << " s) in " << nume << "==\n";
+    std::cout << "\n=== SIM (timp: " << dTime << " s) in " << numeCircuit << "==\n";
     if(cars.empty())
     {
         std::cout << "Nu sunt masini pe circuit.\n";
@@ -88,7 +88,7 @@ void circuit::simulat(float dTime)
 
 std::ostream& operator<<(std::ostream& os, const circuit& circuit)
 {
-    os << " --- Statusul circuitului: " << circuit.nume << " ---\n";
+    os << " --- Statusul circuitului: " << circuit.numeCircuit << " ---\n";
     os << "Obstacole:\n";
     if(circuit.obstacole.empty())
     {

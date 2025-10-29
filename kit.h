@@ -2,9 +2,9 @@
 #include "powerUp.h"
 
 
-claitReparatie : public PowerUp 
+class KitReparatie : public PowerUp 
 {
-pulic:
+public:
    explicit  KitReparatie(const vector& poz);
 
     void aplicaEfect(car& masina) override;

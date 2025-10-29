@@ -2,7 +2,7 @@
 #include <iostream>
 
 car::car(std::string nume, const vector& poz, int combInit, int consum):
-    nume(nume), pozitie(poz), viteza(0, 0), fuel(combInit), consum(consum), damage(), damageMax(3)
+    nume(nume), pozitie(poz), viteza(0, 0), fuel(combInit), consum(consum), damage(0), damageMax(3)
 {
     std::cout << "Init construct: masina condusa de " << nume << "a intrat pe circuit.\n";
 
@@ -85,7 +85,7 @@ const vector& car::getPozitie() const
 
 std::ostream& operator<<(std::ostream& os, const car& car)
 {
-    os << "nume: " << car.nume << " | pozitia " << car.pozitie << "| combustibil " << car.fuel<< "%";
+    os << "nume: " << car.nume << " | pozitia " << car.pozitie << "| combustibil " << car.fuel<< "% " << "| damage " << car.damage << "/" << car.damageMax;
     return os;
     
 }
@@ -98,10 +98,6 @@ void car::aplicaDamage(int valoare)
         this->damage = 0;
     }
     std::cout <<"[INFO] " << this->nume << "a suferit damage!";
-    if((this->damage - 1) == this->damageMax)
-    {
-        std::cout << " Nivel critic!!!";
-    }
     std::cout << "Nivel actual: " << this->damage << "/" << this->damageMax << "\n";
 }
 
