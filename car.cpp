@@ -31,6 +31,7 @@ car& car::operator=(const car& other)
         this->viteza = other.viteza;
         this->fuel = other.fuel;
         this->damage = other.damage;
+        this->performanta = other.performanta;
     }
     return *this;
 }
