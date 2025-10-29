@@ -2,7 +2,7 @@
 #include <iostream>
 
 car::car(std::string nume, const vector& poz, int combInit, int consum):
-    nume(nume), pozitie(poz), viteza(0, 0), fuel(combInit), consum(consum), damage(0), damageMax(3)
+    nume(nume), pozitie(poz), viteza(0, 0), fuel(combInit), consum(consum), damage(0), damageMax(3), performanta(1.0)
 {
     std::cout << "Init construct: masina condusa de " << nume << "a intrat pe circuit.\n";
 
@@ -15,7 +15,8 @@ car::car(const car& other):
     fuel(other.fuel), 
     consum(other.consum),
     damage(other.damage),
-    damageMax(other.damageMax)
+    damageMax(other.damageMax),
+    performanta(other.performanta)
 {
     std::cout << "Cpy construct: o copie a "<< nume << "a fost creata.\n";
 }
@@ -52,8 +53,8 @@ void car::acceleratie(const vector& directie, float factor)
     if (fuel > 0)
     {
         viteza = vector(
-            viteza.getx() + directie.getx() * factor,
-            viteza.gety() + directie.gety() * factor
+            viteza.getx() + directie.getx() * factor * performanta,
+            viteza.gety() + directie.gety() * factor * performanta
         );
         fuel -=consum;
         if (fuel < 0)
@@ -116,3 +117,12 @@ void car::adaugaCombustibil(int cantitate)
     std::cout << "[INFO] " << nume << " a primit combustibil! Nivel actual: " << fuel << "%\n";
 }
 
+void car::penalizareMotor(float penalizare) 
+{
+    performanta -= penalizare;
+    if (performanta < 0.2f) 
+    {
+        performanta = 0.2f;
+    }
+    std::cout << "[DEBUFF] Motorul lui " << nume << " a fost avariat Performanta redusa la " << static_cast<int>(performanta * 100) << "%\n";
+}

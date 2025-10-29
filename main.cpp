@@ -5,5 +5,6 @@
 #include "kit.cpp"
 #include "boost.cpp"
 #include "refill.cpp"
+#include "penalizare.cpp"
 #include "circuit.cpp"
 #include "tema1.cpp"

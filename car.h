@@ -12,6 +12,7 @@ private:
     const int consum;//consum de combustibil
     int damage;
     const int damageMax;
+    float performanta;
 
 public:
     car(std::string nume, const vector& poz, int fuelInit, int consumMediu);
@@ -27,4 +28,5 @@ public:
     void aplicaDamage(int valoare);
     bool eliminata() const;//daca trece de damage max
     void adaugaCombustibil(int cantitate);
+    void penalizareMotor(float penalizare);
 };

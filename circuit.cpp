@@ -6,6 +6,7 @@
 #include "kit.h"
 #include "boost.h"
 #include "refill.h"
+#include "penalizare.h"
 
 circuit::circuit(std::string numeCircuit) : numeCircuit(std::move(numeCircuit)) {}
 
@@ -160,6 +161,10 @@ bool circuit::incarcaFisier(const std::string& cale)
             else if (tipPowerUp == 3) 
             {
                  powerUps.push_back(std::make_unique<RefillCombustibil>(vector(x, y)));
+            }
+            else if (tipPowerUp == 4)
+            {
+                powerUps.push_back(std::make_unique<PenalizareMotor>(vector(x, y)));
             }
         }
     }
