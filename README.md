@@ -2,7 +2,7 @@
 
 
 # NeedForDrive
-#O sa fie un joc top-down cu masini pe circuit si cateva obstacole care trebuie ocolite
+   O sa fie un joc top-down cu masini pe circuit si cateva obstacole care trebuie ocolite, power up-uri si in faza finala o sa fie si o zona de pit in care sa se refaca masina si sa fie alimentata.
 
 
 
