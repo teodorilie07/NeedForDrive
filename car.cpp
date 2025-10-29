@@ -106,3 +106,13 @@ bool car::eliminata() const
     return this->damage >= this->damageMax;
 }
 
+void car::adaugaCombustibil(int cantitate) 
+{
+    fuel += cantitate;
+    if (fuel > 100) 
+    {
+        fuel = 100;
+    }
+    std::cout << "[INFO] " << nume << " a primit combustibil! Nivel actual: " << fuel << "%\n";
+}
+

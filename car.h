@@ -26,4 +26,5 @@ public:
     friend std::ostream& operator<<(std::ostream& os, const car& car);
     void aplicaDamage(int valoare);
     bool eliminata() const;//daca trece de damage max
+    void adaugaCombustibil(int cantitate);
 };
