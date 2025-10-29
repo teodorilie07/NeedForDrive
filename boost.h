@@ -4,7 +4,7 @@
 class BoostNitro : public PowerUp 
 {
 public:
-    BoostNitro(const vector& poz);
+   explicit  BoostNitro(const vector& poz);
 
     void aplicaEfect(car& masina) override;
 };

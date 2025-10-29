@@ -8,8 +8,9 @@
 
 class circuit
 {
+
 private:
-    std::string nume;
+    std::string numeCircuit;
     std::vector<car> cars;
     std::vector<obstacol> obstacole;
     std::vector<std::unique_ptr<PowerUp>> powerUps; //vector dinamic pt powerUps
