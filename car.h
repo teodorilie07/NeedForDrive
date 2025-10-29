@@ -10,6 +10,8 @@ private:
     vector viteza;
     int fuel;//nivel de combustibil
     const int consum;//consum de combustibil
+    int damage;
+    const int damageMax;
 
 public:
     car(std::string nume, const vector& poz, int fuelInit, int consumMediu);
@@ -22,4 +24,6 @@ public:
     const std::string& getNume() const;
     const vector& getPozitie() const;
     friend std::ostream& operator<<(std::ostream& os, const car& car);
+    void aplicaDamage(int valoare);
+    bool eliminata() const;//daca trece de damage max
 };

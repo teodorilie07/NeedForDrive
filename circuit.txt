@@ -1,0 +1,8 @@
+O 50 22 5
+O 80 28 3
+
+C Hamilton 10 20 100 5
+C Vettel 10 25 90 6
+
+P KitReparatie 30 30
+P BoostNitro 60 60

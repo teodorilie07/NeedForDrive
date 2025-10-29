@@ -2,14 +2,20 @@
 #include <iostream>
 
 car::car(std::string nume, const vector& poz, int combInit, int consum):
-    nume(nume), pozitie(poz), viteza(0, 0), fuel(combInit), consum(consum)
+    nume(nume), pozitie(poz), viteza(0, 0), fuel(combInit), consum(consum), damage(), damageMax(3)
 {
     std::cout << "Init construct: masina condusa de " << nume << "a intrat pe circuit.\n";
 
 }
 
 car::car(const car& other):
-    nume(other.nume), pozitie(other.pozitie), viteza(other.viteza), fuel(other.fuel), consum(other.consum)
+    nume(other.nume), 
+    pozitie(other.pozitie), 
+    viteza(other.viteza),
+    fuel(other.fuel), 
+    consum(other.consum),
+    damage(other.damage),
+    damageMax(other.damageMax)
 {
     std::cout << "Cpy construct: o copie a "<< nume << "a fost creata.\n";
 }
@@ -81,5 +87,25 @@ std::ostream& operator<<(std::ostream& os, const car& car)
     os << "nume: " << car.nume << " | pozitia " << car.pozitie << "| combustibil " << car.fuel<< "%";
     return os;
     
+}
+
+void car::aplicaDamage(int valoare)
+{
+    this->damage += valoare;
+    if(this->damage < 0)
+    {
+        this->damage = 0;
+    }
+    std::cout <<"[INFO] " << this->nume << "a suferit damage!";
+    if((this->damage - 1) == this->damageMax)
+    {
+        std::cout << " Nivel critic!!!";
+    }
+    std::cout << "Nivel actual: " << this->damage << "/" << this->damageMax << "\n";
+}
+
+bool car::eliminata() const
+{
+    return this->damage >= this->damageMax;
 }
 
