@@ -1,6 +1,7 @@
 #include "vector.h"
 #include <cmath>
 
+
 vector::vector(float val_x, float val_y) : x(val_x), y(val_y) {}
 
 float vector::getx() const 
@@ -25,3 +26,8 @@ std::ostream& operator<<(std::ostream& os, const vector& vec)
     os << "(" << vec.x << "," << vec.y << ")";
     return os;
 }
+/*
+sf::Vector2f toSfmlVector(const vector& v) {
+    return {v.x, v.y};
+}
+*/

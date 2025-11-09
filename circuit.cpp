@@ -81,9 +81,9 @@ void circuit::simulat(float dTime)
          std::cout << "[INFO] " << it->getNume() << " s-a retras din cursa din cauza avariilor\n";
          it = cars.erase(it);
         }
-         else
+        else
         {
-            it++;
+            ++it;
         }
     }
 }
@@ -171,4 +171,22 @@ bool circuit::incarcaFisier(const std::string& cale)
     return true;
 }
 
+const std::vector<obstacol>& circuit::getObstacole() const
+{
+    return obstacole;
+}
 
+const std::vector<car>& circuit::getCars() const
+{
+    return cars;
+}
+
+car& circuit::getPlayerCar()
+{
+
+    if (cars.empty())
+    {
+        throw std::runtime_error("Nu exista nicio masina a jucatorului!");
+    }
+    return cars[0];
+}

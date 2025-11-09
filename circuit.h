@@ -25,5 +25,10 @@ public:
     void simulat(float dTime);
     friend std::ostream& operator<<(std::ostream& os, const circuit& circuit);
     bool incarcaFisier(const std::string& cale);
+    [[nodiscard]] const std::vector<obstacol>& getObstacole() const;
+    [[nodiscard]] const std::vector<car>& getCars() const;
+    car& getPlayerCar();
+
+
 };
 
