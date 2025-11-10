@@ -11,6 +11,19 @@ runs:
       run: |
         sudo apt-get update
         sudo apt-get install ninja-build
+        sudo apt-get install -y \
+          gcc-12 g++-12 \
+          clang-18 lldb-18 \
+          libx11-dev \
+          libxrandr-dev \
+          libxcursor-dev \
+          libxi-dev \
+          libudev-dev \
+          libgl1-mesa-dev \
+          libopenal-dev \
+          libvorbis-dev \
+          libflac-dev \
+          libfreetype-dev
         # https://github.com/llvm/llvm-project/issues/78354
         sudo sysctl vm.mmap_rnd_bits=28
 

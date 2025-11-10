@@ -68,7 +68,7 @@ void circuit::simulat(float dTime)
     }
     for (auto& car : cars)
     {
-        car.acceleratie(vector(1.0, 2.0), 2.5);
+        //car.acceleratie(vector(1.0, 2.0), 2.5);
         car.uptState(dTime);
     }
 
