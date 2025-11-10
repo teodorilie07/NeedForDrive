@@ -1,30 +1,8 @@
 name: 'Install common Linux dependencies'
-description: 'Installs common dependencies for Linux'
+description: 'Common logic for Linux dependencies installation'
 runs:
   using: "composite"
   steps:
-    - name: Install dependencies
+    - run: |
+        bash ./scripts/install-sfml-deps.sh
       shell: bash
-      run: |
-        sudo apt-get update
-        sudo apt-get install --no-install-recommends \
-          
-          # Dependențe de bază C++ (gcc, g++, etc.)
-          build-essential \
-          gcc-12 \
-          g++-12 \
-          clang-18 \
-          lldb-18 \
-          ninja-build \
-          
-          # 👇 DEPENDENȚELE SFML/X11 LIPSĂ 👇
-          libx11-dev \
-          libxrandr-dev \
-          libxcursor-dev \
-CH          libxi-dev \
-          libudev-dev \
-          libgl1-mesa-dev \
-          libopenal-dev \
-          libvorbis-dev \
-          libflac-dev \
-          libfreetype-dev
