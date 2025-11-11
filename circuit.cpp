@@ -176,10 +176,12 @@ const std::vector<obstacol>& circuit::getObstacole() const
     return obstacole;
 }
 
+/*
 const std::vector<car>& circuit::getCars() const
 {
     return cars;
 }
+*/
 
 car& circuit::getPlayerCar()
 {
