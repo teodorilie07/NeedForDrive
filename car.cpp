@@ -57,7 +57,7 @@ void car::acceleratie(const vector& directie, float factor)
             viteza.getx() + directie.getx() * factor * performanta,
             viteza.gety() + directie.gety() * factor * performanta
         );
-        fuel -=consum;
+        fuel = fuel - consum * 0.2;
         if (fuel < 0)
             fuel = 0;
     }
