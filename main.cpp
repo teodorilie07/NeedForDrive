@@ -5,57 +5,37 @@
 #include "car.h"        // Header-ul pentru clasa 'car'
 #include "obstacol.h"   // Header-ul pentru clasa 'obstacol'
 
-// --- Funcție ajutătoare ---
-// Convertește vectorul tău custom la un vector SFML
-// (Presupune că ai adăugat getX() și getY() în vector.h)
+
 sf::Vector2f toSfmlVector(const vector& v)
 {
     return {v.getx(), v.gety()};
 }
 
 int main() {
-    /*
-        circuit monza("Circuitul Monza");
+        circuit  circuitul("Circuitul Monza");
 
-        std::cout << "Incarcarea circuitului din fisierul 'circuit.txt'...\n";
-        if (!monza.incarcaFisier("circuit.txt"))
+        std::cout << "Incarcarea circuitului din fisierul 'tastatura.txt'...\n";
+        if (! circuitul.incarcaFisier("tastatura.txt"))
         {
             std::cout << "EROARE DESCHIDERE FISIER Programul se va inchide\n";
             return 1;
         }
 
         std::cout << "\n--- Configurarea initiala a circuitului ---\n";
-        std::cout << monza;
-
-        std::cout << "\n--- INCEPE SIMULAREA ---\n";
-        constexpr int numarPasiSimulare = 10;
-        constexpr float dTime = 1.5f;
-
-        for (int i = 0; i < numarPasiSimulare; ++i)
-        {
-            monza.simulat(dTime);
-            std::cout << monza;
-        }
-
-        std::cout << "\n--- CURSA S-A INCHEIAT ---\n";
-        std::cout << "Obiectele ramase vor fi distruse automat.\n";
-    */
+        std::cout <<  circuitul;
 
 
 
-    sf::RenderWindow window(sf::VideoMode({800, 600}), "NFD - Logic vs Visual");
+
+
+    sf::RenderWindow window(sf::VideoMode({800, 600}), "NFD");
     window.setFramerateLimit(60);
 
 
     sf::Clock clock;
 
-    circuit circuitul("Circuitul Meu");
-
-
-
-
     car masinaLogica("Player", vector(400.f, 500.f), 100, 1);
-    circuitul.addCar(masinaLogica); // Adaugă mașina în circuit
+    circuitul.addCar(masinaLogica);
 
 
 
@@ -91,7 +71,7 @@ int main() {
 
 
         car& playerCar = circuitul.getPlayerCar();
-        float moveFactor = 100.f; // Cât de tare să accelereze
+        float moveFactor = 100.f;
 
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))

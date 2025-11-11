@@ -8,8 +8,8 @@ int main()
 
     circuit monza("Circuitul Monza");
 
-    std::cout << "Incarcarea circuitului din fisierul 'circuit.txt'...\n";
-    if (!monza.incarcaFisier("circuit.txt")) 
+    std::cout << "Incarcarea circuitului din fisierul 'tastatura.txt'...\n";
+    if (!monza.incarcaFisier("tastatura.txt"))
     {
         std::cout << "EROARE DESCHIDERE FISIER Programul se va inchide\n";
         return 1;     
