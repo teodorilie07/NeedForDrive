@@ -1,9 +1,9 @@
 #include <SFML/Graphics.hpp>
-#include <iostream>     // Pentru 'cout' din codul tău comentat
+#include <iostream>
 #include "circuit.h"
-#include "vector.h"     // Header-ul pentru clasa ta 'vector'
-#include "car.h"        // Header-ul pentru clasa 'car'
-#include "obstacol.h"   // Header-ul pentru clasa 'obstacol'
+#include "vector.h"
+#include "car.h"
+#include "obstacol.h"
 
 
 sf::Vector2f toSfmlVector(const vector& v)
@@ -12,20 +12,23 @@ sf::Vector2f toSfmlVector(const vector& v)
 }
 
 int main() {
-        circuit  circuitul("Circuitul Monza");
+    circuit  circuitul("Circuitul Monza");
 
-        std::cout << "Incarcarea circuitului din fisierul 'tastatura.txt'...\n";
-        if (! circuitul.incarcaFisier("tastatura.txt"))
-        {
-            std::cout << "EROARE DESCHIDERE FISIER Programul se va inchide\n";
-            return 1;
-        }
+    car masinaLogica("Player", vector(400.f, 500.f), 100, 1);
+    circuitul.addCar(masinaLogica);
 
-        std::cout << "\n--- Configurarea initiala a circuitului ---\n";
-        std::cout <<  circuitul;
+    std::cout << "Incarcarea circuitului din fisierul 'tastatura.txt'...\n";
+    if (! circuitul.incarcaFisier("tastatura.txt"))
+    {
+        std::cout << "EROARE DESCHIDERE FISIER Programul se va inchide\n";
+        return 1;
+    }
 
+    obstacol obstacolLogic(vector(350.f, 150.f), 50.f);
+    circuitul.addObst(obstacolLogic);
 
-
+    std::cout << "\n--- Configurarea initiala a circuitului ---\n";
+    std::cout <<  circuitul;
 
 
     sf::RenderWindow window(sf::VideoMode({800, 600}), "NFD");
@@ -34,30 +37,23 @@ int main() {
 
     sf::Clock clock;
 
-    car masinaLogica("Player", vector(400.f, 500.f), 100, 1);
-    circuitul.addCar(masinaLogica);
-
-
-
-    obstacol obstacolLogic(vector(350.f, 150.f), 50.f);
-    circuitul.addObst(obstacolLogic);
-
-
-
     sf::RectangleShape masinaShape({40.f, 70.f});
     masinaShape.setFillColor(sf::Color::Green);
-
     masinaShape.setOrigin({20.f, 35.f});
 
-    sf::CircleShape obstacolShape(50.f);
-    obstacolShape.setFillColor(sf::Color::Red);
-    obstacolShape.setOrigin({50.f, 50.f});
-
+    std::vector<sf::CircleShape> obstacolShapes;
+    for (const auto& obsLogic : circuitul.getObstacole())
+    {
+        sf::CircleShape shape(obsLogic.getRaza());
+        shape.setFillColor(sf::Color::Red);
+        shape.setOrigin({obsLogic.getRaza(), obsLogic.getRaza()});
+        shape.setPosition(toSfmlVector(obsLogic.getPozitie()));
+        obstacolShapes.push_back(shape);
+    }
 
 
     while (window.isOpen())
     {
-
         sf::Time dt = clock.restart();
         float dTime = dt.asSeconds();
 
@@ -69,43 +65,43 @@ int main() {
             }
         }
 
-
         car& playerCar = circuitul.getPlayerCar();
-        float moveFactor = 100.f;
 
+        float moveAcceleration = 100.f;
+        float rotationSpeed = 100.f;
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
-        {
-            playerCar.acceleratie(vector(0.f, -1.f), moveFactor * dTime);
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
-        {
-            playerCar.acceleratie(vector(0.f, 1.f), moveFactor * dTime);
-        }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
         {
-            playerCar.acceleratie(vector(-1.f, 0.f), moveFactor * dTime);
+            playerCar.roteste(-rotationSpeed * dTime);
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
         {
-            playerCar.acceleratie(vector(1.f, 0.f), moveFactor * dTime);
+            playerCar.roteste(rotationSpeed * dTime);
         }
 
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
+        {
+            playerCar.acceleratie(moveAcceleration * dTime);
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
+        {
+            playerCar.acceleratie(-moveAcceleration * 0.5f * dTime);
+        }
 
         circuitul.simulat(dTime);
 
-
-
         masinaShape.setPosition(toSfmlVector(playerCar.getPozitie()));
 
+        masinaShape.setRotation(sf::degrees(playerCar.getUnghi()));
 
-        if (!circuitul.getObstacole().empty()) {
-            obstacolShape.setPosition(toSfmlVector(circuitul.getObstacole()[0].getPozitie()));
-        }
 
         window.clear(sf::Color::Black);
 
-        window.draw(obstacolShape);
+        for (const auto& shape : obstacolShapes)
+        {
+            window.draw(shape);
+        }
+
         window.draw(masinaShape);
 
         window.display();

@@ -25,7 +25,7 @@ void circuit::addObst(const obstacol& obst)
     obstacole.push_back(obst);
 }
 
-void circuit::checkCol() //verifica coliziunile
+void circuit::checkCol()
 {
     for(auto& car : cars)
     {
@@ -44,13 +44,13 @@ void circuit::checkCol() //verifica coliziunile
 void circuit::checkPwrUps()
 {
     for (auto& car : cars) {
-        for (auto it = powerUps.begin(); it != powerUps.end(); ) 
+        for (auto it = powerUps.begin(); it != powerUps.end(); )
         {
-            if (car.getPozitie().distance((*it)->getPozitie()) < 3.0) 
-            { 
+            if (car.getPozitie().distance((*it)->getPozitie()) < 3.0)
+            {
                 (*it)->aplicaEfect(car);
-                it = powerUps.erase(it); 
-            } else 
+                it = powerUps.erase(it);
+            } else
             {
                 ++it;
             }
@@ -68,12 +68,15 @@ void circuit::simulat(float dTime)
     }
     for (auto& car : cars)
     {
-        //car.acceleratie(vector(1.0, 2.0), 2.5);
+        float factorFrictiune = 0.98f;
+        car.aplicaFrictiune(factorFrictiune);
+
         car.uptState(dTime);
     }
 
     checkCol();
     checkPwrUps();
+
     for (auto it = cars.begin(); it != cars.end();)
     {
         if(it->eliminata())
@@ -158,7 +161,7 @@ bool circuit::incarcaFisier(const std::string& cale)
             {
                 powerUps.push_back(std::make_unique<BoostNitro>(vector(x, y)));
             }
-            else if (tipPowerUp == 3) 
+            else if (tipPowerUp == 3)
             {
                  powerUps.push_back(std::make_unique<RefillCombustibil>(vector(x, y)));
             }
@@ -175,13 +178,6 @@ const std::vector<obstacol>& circuit::getObstacole() const
 {
     return obstacole;
 }
-
-/*
-const std::vector<car>& circuit::getCars() const
-{
-    return cars;
-}
-*/
 
 car& circuit::getPlayerCar()
 {
