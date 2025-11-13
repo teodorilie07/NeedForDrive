@@ -65,35 +65,42 @@ int main() {
             }
         }
 
-        car& playerCar = circuitul.getPlayerCar();
+        // modificare: obtin pointerul
+        car* playerCar = circuitul.getPlayerCar();
 
-        float moveAcceleration = 100.f;
-        float rotationSpeed = 100.f;
-
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
+        // modificare: adaug o verificare ca playerul exista inainte de a procesa input-ul
+        if (playerCar != nullptr)
         {
-            playerCar.roteste(-rotationSpeed * dTime);
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
-        {
-            playerCar.roteste(rotationSpeed * dTime);
-        }
+            float moveAcceleration = 100.f;
+            float rotationSpeed = 100.f;
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
-        {
-            playerCar.acceleratie(moveAcceleration * dTime);
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
-        {
-            playerCar.acceleratie(-moveAcceleration * 0.5f * dTime);
-        }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
+            {
+                playerCar->roteste(-rotationSpeed * dTime);
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
+            {
+                playerCar->roteste(rotationSpeed * dTime);
+            }
 
-        circuitul.simulat(dTime);
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
+            {
+                playerCar->acceleratie(moveAcceleration * dTime);
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
+            {
+                playerCar->acceleratie(-moveAcceleration * 0.5f * dTime);
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Backspace)) {
+                window.close();//Am adaugat functie de exit pentru program
+            }
+        } // modificare: inchid blocul if (playerCar != nullptr)
 
-        masinaShape.setPosition(toSfmlVector(playerCar.getPozitie()));
 
-        masinaShape.setRotation(sf::degrees(playerCar.getUnghi()));
+        circuitul.simulat(dTime); // playeru poate sa ti se stearga aici
 
+        // este posibil ca playerCar sa fi devenit invalid.
+        playerCar = circuitul.getPlayerCar();
 
         window.clear(sf::Color::Black);
 
@@ -101,8 +108,14 @@ int main() {
         {
             window.draw(shape);
         }
-
-        window.draw(masinaShape);
+        if (playerCar != nullptr)
+        {
+            // actualizez si desenez masina doar daca inca exista
+            masinaShape.setPosition(toSfmlVector(playerCar->getPozitie()));
+            masinaShape.setRotation(sf::degrees(playerCar->getUnghi()));
+            window.draw(masinaShape);
+        }
+        // modificare: daca playerCar este nullptr, pur si simplu nu desenam masina
 
         window.display();
     }

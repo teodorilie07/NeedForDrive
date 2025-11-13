@@ -16,6 +16,8 @@ private:
     std::vector<std::unique_ptr<PowerUp>> powerUps; //vector dinamic pt powerUps
     void checkCol();//verifica coliziunea
     void checkPwrUps();
+    //functie noua pentru coliziuni
+    void gestioneazaColiziuni();
 
 public:
     explicit circuit(std::string numeCircuit);
@@ -27,7 +29,7 @@ public:
     bool incarcaFisier(const std::string& cale);
     [[nodiscard]] const std::vector<obstacol>& getObstacole() const;
     //[[nodiscard]] const std::vector<car>& getCars() const;
-    car& getPlayerCar();
+    car* getPlayerCar();
 
 
 };
