@@ -11,7 +11,8 @@ car::car(const std::string& nume, const vector& poz, int combInit, int consum):
     damage(0),
     damageMax(3),
     performanta(1.0),
-    unghi(0.0)
+unghi(0.0),latime(40.f),
+lungime(70.f)
 {
     std::cout << "Init construct: masina condusa de " << nume << "a intrat pe circuit.\n";
 }
@@ -25,7 +26,8 @@ car::car(const car& other):
     damage(other.damage),
     damageMax(other.damageMax),
     performanta(other.performanta),
-    unghi(other.unghi)
+unghi(other.unghi),latime(other.latime),
+lungime(other.lungime)
 {
     std::cout << "Cpy construct: o copie a "<< nume << "a fost creata.\n";
 }
@@ -42,6 +44,9 @@ car& car::operator=(const car& other)
         this->damage = other.damage;
         this->performanta = other.performanta;
         this->unghi = other.unghi;
+        //adaug in op de atribuire
+        this->latime = other.latime;
+        this->lungime = other.lungime;
     }
     return *this;
 }
@@ -160,4 +165,23 @@ void car::aplicaFrictiune(float factor)
         viteza.getx() * factor,
         viteza.gety() * factor
     );
+}
+
+//ti am adaugat functiile din header l ema impelmentat
+float car::getLatime() const
+{
+    return latime;
+}
+
+float car::getLungime() const
+{
+    return lungime;
+}
+
+void car::onCollision()
+{
+    std::cout << "[COLIZIUNE] " << nume << " a lovit un obstacol!\n";
+    viteza = vector(0, 0);
+    aplicaDamage(1);
+    penalizareMotor(0.1f);
 }

@@ -1,4 +1,5 @@
 #include "circuit.h"
+#include <cmath>
 #include <iostream>
 #include <fstream>
 #include "car.h"
@@ -23,22 +24,6 @@ void circuit::addCar(const car& masina)
 void circuit::addObst(const obstacol& obst)
 {
     obstacole.push_back(obst);
-}
-
-void circuit::checkCol()
-{
-    for(auto& car : cars)
-    {
-        for(const auto& obstacol : obstacole)
-        {
-            if(car.getPozitie().distance(obstacol.getPozitie()) < obstacol.getRaza())
-            {
-            std::cout << "[COLIZIUNE] "<< car.getNume() << " a lovit un obstacol";
-                car.brake();
-                car.aplicaDamage(1);
-            }
-        }
-    }
 }
 
 void circuit::checkPwrUps()
@@ -74,7 +59,7 @@ void circuit::simulat(float dTime)
         car.uptState(dTime);
     }
 
-    checkCol();
+    gestioneazaColiziuni();
     checkPwrUps();
 
     for (auto it = cars.begin(); it != cars.end();)
@@ -179,12 +164,58 @@ const std::vector<obstacol>& circuit::getObstacole() const
     return obstacole;
 }
 
-car& circuit::getPlayerCar()
+car* circuit::getPlayerCar()
 {
 
     if (cars.empty())
     {
-        throw std::runtime_error("Nu exista nicio masina a jucatorului!");
+        return nullptr;
     }
-    return cars[0];
+    return &cars[0];
+}
+
+float clamp(float val, float min, float max) {
+    return std::max(min, std::min(val, max));
+}
+
+void circuit::gestioneazaColiziuni()
+{
+    for (car& masina : cars)
+    {
+        if (masina.eliminata()) continue;
+
+        float carHalfWidth = masina.getLatime() / 2.0f;
+        float carHalfHeight = masina.getLungime() / 2.0f;
+        float carAngle = masina.getUnghi();
+        vector carPos = masina.getPozitie();
+
+        float carAngleRad = carAngle * (3.14159f / 180.0f);
+        float cosAngle = std::cos(-carAngleRad);
+        float sinAngle = std::sin(-carAngleRad);
+
+        for (const obstacol& obs : obstacole)
+        {
+            vector obsPos = obs.getPozitie();
+            float obsRad = obs.getRaza();
+
+            vector vecToCircle = vector(obsPos.getx() - carPos.getx(), obsPos.gety() - carPos.gety());
+
+            float localCircleX = vecToCircle.getx() * cosAngle - vecToCircle.gety() * sinAngle;
+            float localCircleY = vecToCircle.getx() * sinAngle + vecToCircle.gety() * cosAngle;
+
+            float closestX = clamp(localCircleX, -carHalfWidth, carHalfWidth);
+            float closestY = clamp(localCircleY, -carHalfHeight, carHalfHeight);
+
+            float dx = localCircleX - closestX;
+            float dy = localCircleY - closestY;
+            float distanceSquared = (dx * dx) + (dy * dy);
+
+            if (distanceSquared < (obsRad * obsRad))
+            {
+                masina.onCollision();
+                if (masina.eliminata())
+                    break;
+            }
+        }
+    }
 }

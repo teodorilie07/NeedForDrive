@@ -14,6 +14,9 @@ private:
     const int damageMax;
     float performanta;
     float unghi;
+    //Adaugat pentru coliziuni
+    float latime;
+    float lungime;
 
 public:
     car(const std::string& nume, const vector& poz, int fuelInit, int consumMediu);
@@ -33,4 +36,9 @@ public:
     [[nodiscard]] bool eliminata() const;//daca trece de damage max
     void adaugaCombustibil(int cantitate);
     void penalizareMotor(float penalizare);
+
+    //coliziuni
+    float getLatime() const;
+    float getLungime() const;
+    void onCollision();
 };
