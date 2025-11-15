@@ -14,7 +14,7 @@ private:
     std::vector<car> cars;
     std::vector<obstacol> obstacole;
     std::vector<std::unique_ptr<PowerUp>> powerUps; //vector dinamic pt powerUps
-    void checkCol();//verifica coliziunea
+    //void checkCol();//verifica coliziunea
     void checkPwrUps();
     //functie noua pentru coliziuni
     void gestioneazaColiziuni();

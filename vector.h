@@ -14,5 +14,6 @@ public:
     [[nodiscard]] float gety() const;
     [[nodiscard]] float distance(const vector& other) const;
     friend std::ostream& operator<<(std::ostream& os, const vector& vec);
-    //friend sf::Vector2f toSfmlVector(const vector& v);
+    friend sf::Vector2f toSfmlVector(const vector& v);
 };
+

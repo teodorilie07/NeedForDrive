@@ -1,8 +1,10 @@
 #include "car.h"
 #include <iostream>
 #include <cmath>
+#include "vector.h"
+#include <SFML/Graphics.hpp>
 
-car::car(const std::string& nume, const vector& poz, int combInit, int consum):
+car::car(const std::string& nume, const vector& poz, int combInit, int consum, sf::Texture& texturaMasinii):
     nume(nume),
     pozitie(poz),
     viteza(0, 0),
@@ -11,10 +13,14 @@ car::car(const std::string& nume, const vector& poz, int combInit, int consum):
     damage(0),
     damageMax(3),
     performanta(1.0),
-unghi(0.0),latime(40.f),
-lungime(70.f)
+    unghi(90),
+    latime(40.f),
+    lungime(70.f),
+    m_sprite(texturaMasinii)
 {
     std::cout << "Init construct: masina condusa de " << nume << "a intrat pe circuit.\n";
+    sf::FloatRect bounds = m_sprite.getLocalBounds();
+    m_sprite.setOrigin(sf::Vector2f(bounds.size.x * 0.5f, bounds.size.y * 0.5f));
 }
 
 car::car(const car& other):
@@ -26,8 +32,10 @@ car::car(const car& other):
     damage(other.damage),
     damageMax(other.damageMax),
     performanta(other.performanta),
-unghi(other.unghi),latime(other.latime),
-lungime(other.lungime)
+    unghi(other.unghi),
+    latime(other.latime),
+    lungime(other.lungime),
+    m_sprite(other.m_sprite)
 {
     std::cout << "Cpy construct: o copie a "<< nume << "a fost creata.\n";
 }
@@ -47,6 +55,7 @@ car& car::operator=(const car& other)
         //adaug in op de atribuire
         this->latime = other.latime;
         this->lungime = other.lungime;
+        this->m_sprite = other.m_sprite;
     }
     return *this;
 }
@@ -183,5 +192,12 @@ void car::onCollision()
     std::cout << "[COLIZIUNE] " << nume << " a lovit un obstacol!\n";
     viteza = vector(0, 0);
     aplicaDamage(1);
-    penalizareMotor(0.1f);
+    //penalizareMotor(0.1f);
+    brake();
+}
+
+void car::draw(sf::RenderWindow& window) {
+    m_sprite.setPosition(toSfmlVector(this->pozitie));
+    m_sprite.setRotation(sf::degrees(this->unghi));
+    window.draw(m_sprite);
 }

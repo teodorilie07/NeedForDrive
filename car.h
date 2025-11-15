@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include "vector.h"
+#include <SFML/Graphics.hpp>
 
 class car
 {
@@ -17,9 +18,11 @@ private:
     //Adaugat pentru coliziuni
     float latime;
     float lungime;
+    //sf::Texture& texturaMasinii;
+    sf::Sprite m_sprite;
 
 public:
-    car(const std::string& nume, const vector& poz, int fuelInit, int consumMediu);
+    car(const std::string& nume, const vector& poz, int fuelInit, int consumMediu, sf::Texture& texturaMasinii);
     car(const car& other);
     car& operator=(const car& other);
     ~car();
@@ -37,8 +40,11 @@ public:
     void adaugaCombustibil(int cantitate);
     void penalizareMotor(float penalizare);
 
+
     //coliziuni
     float getLatime() const;
     float getLungime() const;
     void onCollision();
+
+    void draw(sf::RenderWindow& window);
 };

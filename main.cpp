@@ -5,52 +5,56 @@
 #include "car.h"
 #include "obstacol.h"
 
-
 sf::Vector2f toSfmlVector(const vector& v)
 {
     return {v.getx(), v.gety()};
 }
 
 int main() {
-    circuit  circuitul("Circuitul Monza");
+    sf::RenderWindow window(sf::VideoMode({1024, 640}), "NFD");
+    window.setFramerateLimit(60);
 
-    car masinaLogica("Player", vector(400.f, 500.f), 100, 1);
+    sf::Texture backgroundTexture;
+    if (!backgroundTexture.loadFromFile("assets/track.png"))
+    {
+        std::cerr << "Eroare: Nu s-a putut incărca assets/track.png\n";
+        return -1;
+    }
+
+    sf::Texture carTexture;
+    if (!carTexture.loadFromFile("assets/car.png"))
+    {
+        std::cerr << "Eroare: Nu s-a putut incărca assets/car.png\n";
+        return -1;
+    }
+
+    sf::Texture obstacolTexture;
+    if (!obstacolTexture.loadFromFile("assets/obs.png")) { // Asigură-te că e calea corectă
+        std::cerr << "Eroare: Nu s-a putut încărca assets/obs.png\n";
+        return -1;
+    }
+
+    sf::Sprite backgroundSprite(backgroundTexture);
+
+    circuit circuitul("Circuitul Monza");
+
+    car masinaLogica("Player", vector(400.f, 500.f), 100, 1, carTexture);
     circuitul.addCar(masinaLogica);
 
     std::cout << "Incarcarea circuitului din fisierul 'tastatura.txt'...\n";
-    if (! circuitul.incarcaFisier("tastatura.txt"))
+    if (!circuitul.incarcaFisier("tastatura.txt"))
     {
         std::cout << "EROARE DESCHIDERE FISIER Programul se va inchide\n";
         return 1;
     }
 
-    obstacol obstacolLogic(vector(350.f, 150.f), 50.f);
+    obstacol obstacolLogic(vector(350.f, 150.f), 15.f, obstacolTexture);
     circuitul.addObst(obstacolLogic);
 
     std::cout << "\n--- Configurarea initiala a circuitului ---\n";
-    std::cout <<  circuitul;
-
-
-    sf::RenderWindow window(sf::VideoMode({800, 600}), "NFD");
-    window.setFramerateLimit(60);
-
+    std::cout << circuitul;
 
     sf::Clock clock;
-
-    sf::RectangleShape masinaShape({40.f, 70.f});
-    masinaShape.setFillColor(sf::Color::Green);
-    masinaShape.setOrigin({20.f, 35.f});
-
-    std::vector<sf::CircleShape> obstacolShapes;
-    for (const auto& obsLogic : circuitul.getObstacole())
-    {
-        sf::CircleShape shape(obsLogic.getRaza());
-        shape.setFillColor(sf::Color::Red);
-        shape.setOrigin({obsLogic.getRaza(), obsLogic.getRaza()});
-        shape.setPosition(toSfmlVector(obsLogic.getPozitie()));
-        obstacolShapes.push_back(shape);
-    }
-
 
     while (window.isOpen())
     {
@@ -59,16 +63,22 @@ int main() {
 
         while (const auto event = window.pollEvent())
         {
+            // Verificarea pentru închidere (e corectă)
             if (event->getIf<sf::Event::Closed>())
             {
                 window.close();
             }
+            if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
+            {
+                if (keyPressed->code == sf::Keyboard::Key::Backspace)
+                {
+                    window.close();
+                }
+            }
         }
 
-        // modificare: obtin pointerul
         car* playerCar = circuitul.getPlayerCar();
 
-        // modificare: adaug o verificare ca playerul exista inainte de a procesa input-ul
         if (playerCar != nullptr)
         {
             float moveAcceleration = 100.f;
@@ -82,7 +92,6 @@ int main() {
             {
                 playerCar->roteste(rotationSpeed * dTime);
             }
-
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
             {
                 playerCar->acceleratie(moveAcceleration * dTime);
@@ -91,31 +100,25 @@ int main() {
             {
                 playerCar->acceleratie(-moveAcceleration * 0.5f * dTime);
             }
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Backspace)) {
-                window.close();//Am adaugat functie de exit pentru program
-            }
-        } // modificare: inchid blocul if (playerCar != nullptr)
+        }
 
+        circuitul.simulat(dTime);
 
-        circuitul.simulat(dTime); // playeru poate sa ti se stearga aici
-
-        // este posibil ca playerCar sa fi devenit invalid.
         playerCar = circuitul.getPlayerCar();
 
         window.clear(sf::Color::Black);
 
-        for (const auto& shape : obstacolShapes)
+        window.draw(backgroundSprite);
+
+        for (const auto& obs : circuitul.getObstacole())
         {
-            window.draw(shape);
+            obs.draw(window);
         }
+
         if (playerCar != nullptr)
         {
-            // actualizez si desenez masina doar daca inca exista
-            masinaShape.setPosition(toSfmlVector(playerCar->getPozitie()));
-            masinaShape.setRotation(sf::degrees(playerCar->getUnghi()));
-            window.draw(masinaShape);
+            playerCar->draw(window);
         }
-        // modificare: daca playerCar este nullptr, pur si simplu nu desenam masina
 
         window.display();
     }

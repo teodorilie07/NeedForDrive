@@ -123,8 +123,9 @@ bool circuit::incarcaFisier(const std::string& cale)
         {
             float x, y, raza;
             fisier >> x >> y >> raza;
-            addObst(obstacol(vector(x, y), raza));
+            //addObst(obstacol(vector(x, y), raza));
         }
+        /*
         else if (tipObiect == 'C')
         {
             std::string nume;
@@ -133,6 +134,7 @@ bool circuit::incarcaFisier(const std::string& cale)
             fisier >> nume >> x >> y >> fuel >> consum;
             addCar(car(nume, vector(x, y), fuel, consum));
         }
+        */
         else if (tipObiect == 'P')
         {
             int tipPowerUp;
