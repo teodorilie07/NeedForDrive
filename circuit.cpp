@@ -117,7 +117,7 @@ bool checkCollisionSAT(const vector& posA, float wA, float hA, float rotA,
     auto cornersA = getCorners(posA, wA, hA, rotA);
     auto cornersB = getCorners(posB, wB, hB, rotB);
 
-    std::array<Point, 4> axes;
+    std::array<Point, 4> axes{};
 
     axes[0] = { cornersA[1].x - cornersA[0].x, cornersA[1].y - cornersA[0].y };
     axes[1] = { cornersA[1].x - cornersA[2].x, cornersA[1].y - cornersA[2].y };
