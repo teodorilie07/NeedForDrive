@@ -9,42 +9,49 @@ private:
     std::string nume;
     vector pozitie;
     vector viteza;
-    double fuel;//nivel de combustibil
-    const int consum;//consum de combustibil
+    double fuel;
+    const int consum;
     int damage;
     const int damageMax;
     float performanta;
     float unghi;
-    //Adaugat pentru coliziuni
     float latime;
     float lungime;
-    //sf::Texture& texturaMasinii;
     sf::Sprite m_sprite;
+
+    float immunityTimer;
 
 public:
     car(const std::string& nume, const vector& poz, int fuelInit, int consumMediu, sf::Texture& texturaMasinii);
     car(const car& other);
     car& operator=(const car& other);
     ~car();
+
     void uptState(float dtime);
     void acceleratie(float factor);
     void roteste(float grade);
-    [[nodiscard]] float getUnghi() const;
-    void aplicaFrictiune(float factor);
     void brake();
+    void aplicaFrictiune(float factor);
+
+    [[nodiscard]] float getUnghi() const;
     [[nodiscard]] const std::string& getNume() const;
     [[nodiscard]] const vector& getPozitie() const;
-    friend std::ostream& operator<<(std::ostream& os, const car& car);
-    void aplicaDamage(int valoare);
-    [[nodiscard]] bool eliminata() const;//daca trece de damage max
-    void adaugaCombustibil(int cantitate);
-    void penalizareMotor(float penalizare);
-
-
-    //coliziuni
+    [[nodiscard]] const vector& getViteza() const;
     float getLatime() const;
     float getLungime() const;
+    [[nodiscard]] bool eliminata() const;
+
+    void setPozitie(const vector& pos);
+    void setViteza(const vector& vel);
+
+    void aplicaDamage(int valoare);
+    void adaugaCombustibil(int cantitate);
+    void penalizareMotor(float penalizare);
     void onCollision();
 
+    void activeazaImunitate(float secunde);
+    bool esteImuna() const;
+
     void draw(sf::RenderWindow& window);
+    friend std::ostream& operator<<(std::ostream& os, const car& car);
 };

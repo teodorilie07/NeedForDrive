@@ -3,6 +3,8 @@
 #include <cmath>
 #include "vector.h"
 #include <SFML/Graphics.hpp>
+#include "erori.h"
+
 
 car::car(const std::string& nume, const vector& poz, int combInit, int consum, sf::Texture& texturaMasinii):
     nume(nume),
@@ -11,17 +13,29 @@ car::car(const std::string& nume, const vector& poz, int combInit, int consum, s
     fuel(combInit),
     consum(consum),
     damage(0),
-    damageMax(3),
+    damageMax(5),
     performanta(1.0),
-    unghi(90),
+    unghi(0),
     latime(40.f),
     lungime(70.f),
-    m_sprite(texturaMasinii)
+    m_sprite(texturaMasinii),
+    immunityTimer(0.0f)
 {
-    std::cout << "Init construct: masina condusa de " << nume << "a intrat pe circuit.\n";
-    sf::FloatRect bounds = m_sprite.getLocalBounds();
-    m_sprite.setOrigin(sf::Vector2f(bounds.size.x * 0.5f, bounds.size.y * 0.5f));
+    if (consum < 0) {
+        throw InvalidStatsException(nume, "Consumul nu poate fi negativ!");
+    }
+    if (damageMax <= 0) {
+        throw InvalidStatsException(nume, "DamageMax trebuie sa fie pozitiv!");
+    }
+
+    std::cout << "Init construct: masina condusa de " << nume << " a intrat pe circuit.\n";
+    auto bounds = m_sprite.getLocalBounds();
+    m_sprite.setOrigin(bounds.size / 2.f);
+    if (bounds.size.x > 0 && bounds.size.y > 0) {
+        m_sprite.setScale({ latime / bounds.size.x, lungime / bounds.size.y });
+    }
 }
+
 
 car::car(const car& other):
     nume(other.nume),
@@ -35,16 +49,18 @@ car::car(const car& other):
     unghi(other.unghi),
     latime(other.latime),
     lungime(other.lungime),
-    m_sprite(other.m_sprite)
+    m_sprite(other.m_sprite),   // Copiem sprite-ul explicit
+    immunityTimer(other.immunityTimer)
 {
-    std::cout << "Cpy construct: o copie a "<< nume << "a fost creata.\n";
+    std::cout << "Cpy construct: o copie a "<< nume << " a fost creata.\n";
 }
 
+// --- Operator= ---
 car& car::operator=(const car& other)
 {
-    std::cout << "Asignment operator: Masina lui" << this->nume << " a devenit o copie a masinii lui " << other.nume <<"\n";
-    if (this !=&other)
+    if (this != &other)
     {
+        std::cout << "Assignment operator: Masina lui " << this->nume << " a devenit o copie a masinii lui " << other.nume <<"\n";
         this->nume = other.nume;
         this->pozitie = other.pozitie;
         this->viteza = other.viteza;
@@ -52,17 +68,20 @@ car& car::operator=(const car& other)
         this->damage = other.damage;
         this->performanta = other.performanta;
         this->unghi = other.unghi;
-        //adaug in op de atribuire
         this->latime = other.latime;
         this->lungime = other.lungime;
         this->m_sprite = other.m_sprite;
+        this->immunityTimer = other.immunityTimer;
+
+        // NOTA: Membrii const (consum, damageMax) NU pot fi modificati aici.
+        // Ei raman cu valoarea originala a obiectului din stanga egalului.
     }
     return *this;
 }
 
 car::~car()
 {
-    std::cout << "Destructor masina lui" << nume << " a fost scoasa din cursa.\n";
+    std::cout << "Destructor: masina lui " << nume << " a fost scoasa din cursa.\n";
 }
 
 void car::uptState(float dTime)
@@ -71,6 +90,12 @@ void car::uptState(float dTime)
             pozitie.getx() + viteza.getx() * dTime,
             pozitie.gety() + viteza.gety() * dTime
         );
+
+    // Scadem timpul de imunitate
+    if (immunityTimer > 0.0f) {
+        immunityTimer -= dTime;
+        if (immunityTimer < 0.0f) immunityTimer = 0.0f;
+    }
 }
 
 void car::acceleratie(float forta)
@@ -88,116 +113,88 @@ void car::acceleratie(float forta)
         );
 
         fuel = fuel - consum * 0.2;
-        if (fuel < 0)
-            fuel = 0;
+        if (fuel < 0) fuel = 0;
     }
     else
     {
-        std::cout << "[INFO] " << nume << " nu mai are combustibil si nu mai poate accelera.\n";
-        brake();
+        aplicaFrictiune(0.95f);
     }
 }
 
 void car::brake()
 {
-    viteza = vector(0, 0);
-    std::cout << "[INFO] " << nume << "a franat brusc!\n";
-
+    viteza = vector(viteza.getx() * 0.9f, viteza.gety() * 0.9f);
 }
 
-const std::string& car::getNume() const
-{
-    return nume;
-}
+const std::string& car::getNume() const { return nume; }
+const vector& car::getPozitie() const { return pozitie; }
+const vector& car::getViteza() const { return viteza; }
 
-const vector& car::getPozitie() const
-{
-    return pozitie;
-}
+void car::setPozitie(const vector& pos) { pozitie = pos; }
+void car::setViteza(const vector& vel) { viteza = vel; }
 
 std::ostream& operator<<(std::ostream& os, const car& car)
 {
-    os << "nume: " << car.nume << " | pozitia " << car.pozitie << "| combustibil " << car.fuel<< "% " << "| damage " << car.damage << "/" << car.damageMax;
+    os << "Car: " << car.nume << " | HP: " << (car.damageMax - car.damage);
     return os;
-
 }
 
 void car::aplicaDamage(int valoare)
 {
     this->damage += valoare;
-    if(this->damage < 0)
-    {
-        this->damage = 0;
-    }
-    std::cout <<"[INFO] " << this->nume << "a suferit damage!";
-    std::cout << "Nivel actual: " << this->damage << "/" << this->damageMax << "\n";
+    if(this->damage > this->damageMax) this->damage = this->damageMax;
+    std::cout << "[INFO] " << this->nume << " a lovit ceva! Damage: " << this->damage << "/" << this->damageMax << "\n";
 }
 
-bool car::eliminata() const
-{
-    return this->damage >= this->damageMax;
-}
+bool car::eliminata() const { return this->damage >= this->damageMax; }
 
 void car::adaugaCombustibil(int cantitate)
 {
     fuel += cantitate;
-    if (fuel > 100)
-    {
-        fuel = 100;
-    }
-    std::cout << "[INFO] " << nume << " a primit combustibil! Nivel actual: " << fuel << "%\n";
+    if (fuel > 100) fuel = 100;
 }
 
 void car::penalizareMotor(float penalizare)
 {
     performanta -= penalizare;
-    if (performanta < 0.2f)
-    {
-        performanta = 0.2f;
-    }
-    std::cout << "[DEBUFF] Motorul lui " << nume << " a fost avariat Performanta redusa la " << static_cast<int>(performanta * 100) << "%\n";
+    if (performanta < 0.2f) performanta = 0.2f;
 }
 
-void car::roteste(float grade)
-{
-    this->unghi += grade;
-}
-
-float car::getUnghi() const
-{
-    return this->unghi;
-}
+void car::roteste(float grade) { this->unghi += grade; }
+float car::getUnghi() const { return this->unghi; }
 
 void car::aplicaFrictiune(float factor)
 {
-    viteza = vector(
-        viteza.getx() * factor,
-        viteza.gety() * factor
-    );
+    viteza = vector(viteza.getx() * factor, viteza.gety() * factor);
 }
 
-//ti am adaugat functiile din header l ema impelmentat
-float car::getLatime() const
-{
-    return latime;
+float car::getLatime() const { return latime; }
+float car::getLungime() const { return lungime; }
+
+// --- Imunitate ---
+void car::activeazaImunitate(float secunde) {
+    immunityTimer = secunde;
 }
 
-float car::getLungime() const
-{
-    return lungime;
+bool car::esteImuna() const {
+    return immunityTimer > 0.0f;
 }
 
 void car::onCollision()
 {
-    std::cout << "[COLIZIUNE] " << nume << " a lovit un obstacol!\n";
-    viteza = vector(0, 0);
-    aplicaDamage(1);
-    //penalizareMotor(0.1f);
-    brake();
+    if (!esteImuna()) {
+        aplicaDamage(1);
+    }
 }
 
 void car::draw(sf::RenderWindow& window) {
     m_sprite.setPosition(toSfmlVector(this->pozitie));
     m_sprite.setRotation(sf::degrees(this->unghi));
+
+    if (esteImuna()) {
+        m_sprite.setColor(sf::Color(255, 255, 255, 128));
+    } else {
+        m_sprite.setColor(sf::Color(255, 255, 255, 255));
+    }
     window.draw(m_sprite);
 }

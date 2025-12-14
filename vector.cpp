@@ -26,8 +26,3 @@ std::ostream& operator<<(std::ostream& os, const vector& vec)
     os << "(" << vec.x << "," << vec.y << ")";
     return os;
 }
-/*
-sf::Vector2f toSfmlVector(const vector& v) {
-    return {v.x, v.y};
-}
-*/

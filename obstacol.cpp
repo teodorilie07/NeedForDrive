@@ -1,37 +1,58 @@
 #include "obstacol.h"
-#include "vector.h"
-#include <SFML/Graphics.hpp>
+#include <iostream>
 
-obstacol::obstacol(const vector& pos, float r, sf::Texture& texturaObstacol) :
-pozitie(pos), rad(r), m_sprite(texturaObstacol)
+
+obstacol::obstacol(const vector& pos, float lat, float lung, float rot, sf::Texture& texturaObstacol)
+    : pozitie(pos), latime(lat), lungime(lung), rotatie(rot), m_sprite(texturaObstacol)
 {
-    sf::FloatRect bounds = m_sprite.getLocalBounds();
-    m_sprite.setOrigin(sf::Vector2f(bounds.size.x * 0.5f, bounds.size.y * 0.5f));
-    m_sprite.setPosition(toSfmlVector(this->pozitie));
+    const auto bounds = m_sprite.getLocalBounds();
+
+    m_sprite.setOrigin(bounds.size / 2.f);
+    m_sprite.setPosition(toSfmlVector(pozitie));
+
+    m_sprite.setRotation(sf::degrees(rotatie));
+
+    if (bounds.size.x > 0 && bounds.size.y > 0)
+    {
+        m_sprite.setScale({latime / bounds.size.x, lungime / bounds.size.y});
+    }
 }
 
-    const vector& obstacol::getPozitie() const
-    {
-        return pozitie;
-    }
+obstacol::~obstacol()
+{
+    std::cout << "Destructor obstacol pozitie: " << pozitie << "\n";
+}
 
-    float obstacol::getRaza() const
-    {
-        return rad;
-    }
+const vector& obstacol::getPozitie() const
+{
+    return pozitie;
+}
 
-    std::ostream& operator<<(std::ostream& os, const obstacol& obs)
-    {
-        os << "Obstacol [Pozitie:  " << obs.pozitie << ", Raza: " << obs.rad << "]\n";
-        return os;
-    }
+float obstacol::getLat() const
+{
+    return latime;
+}
 
-    obstacol::~obstacol()
-    {
-        std::cout << "destructor: Obstacolul de la pozitia " << pozitie << " a fost eliminat\n";
-    }
+float obstacol::getLung() const
+{
+    return lungime;
+}
+
+float obstacol::getRotatie() const
+{
+    return rotatie;
+}
 
 void obstacol::draw(sf::RenderWindow& window) const
-    {
-        window.draw(m_sprite);
-    }
+{
+    window.draw(m_sprite);
+}
+
+std::ostream& operator<<(std::ostream& os, const obstacol& obs)
+{
+    os << "Obstacol [Poz: " << obs.pozitie
+       << ", L: " << obs.latime
+       << ", l: " << obs.lungime
+       << ", Rot: " << obs.rotatie << "]";
+    return os;
+}

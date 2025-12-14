@@ -5,15 +5,21 @@
 class vector
 {
 private:
-    float x;
-    float y;
+    float x, y;
 
 public:
-    explicit vector(float x=0, float y=0);
-    [[nodiscard]] float getx() const;
-    [[nodiscard]] float gety() const;
-    [[nodiscard]] float distance(const vector& other) const;
+
+    vector(float xVal = 0, float yVal = 0);
+
+    float getx() const;
+    float gety() const;
+
+    float distance(const vector& other) const;
+
     friend std::ostream& operator<<(std::ostream& os, const vector& vec);
-    friend sf::Vector2f toSfmlVector(const vector& v);
 };
 
+inline sf::Vector2f toSfmlVector(const vector& v)
+{
+    return sf::Vector2f(v.getx(), v.gety());
+}

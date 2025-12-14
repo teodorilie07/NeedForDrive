@@ -2,18 +2,66 @@
 #include <cmath>
 #include <iostream>
 #include <fstream>
+#include <algorithm>
+#include <array>
+#include <limits>
 #include "car.h"
 #include "obstacol.h"
-#include "kit.h"
-#include "boost.h"
-#include "refill.h"
+#include "powerUp.h"
 #include "penalizare.h"
+#include "erori.h"
 
-circuit::circuit(std::string numeCircuit) : numeCircuit(std::move(numeCircuit)) {}
+constexpr float PI = 3.14159265f;
+constexpr float DEG_TO_RAD = PI / 180.0f;
+
+int circuit::contorCircuite = 0;
+
+circuit::circuit(std::string numeCircuit) : numeCircuit(std::move(numeCircuit)) 
+{
+    contorCircuite++;
+}
+
+// Copy Constructor
+circuit::circuit(const circuit& other)
+    : numeCircuit(other.numeCircuit + "_copy"),
+      cars(other.cars),
+      obstacole(other.obstacole)
+{
+    // Deep copy pentru vectorul de unique_ptr
+    for (const auto& ptr : other.powerUps) {
+        if (ptr) {
+            powerUps.push_back(ptr->clone());
+        }
+    }
+    contorCircuite++;
+    std::cout << "Copy Constructor Circuit. Total: " << contorCircuite << "\n";
+}
+
+// Assignment Operator (Copy and Swap)
+circuit& circuit::operator=(circuit other)
+{
+    swap(*this, other);
+    return *this;
+}
+
+// Swap Helper
+void swap(circuit& first, circuit& second) noexcept
+{
+    using std::swap;
+    swap(first.numeCircuit, second.numeCircuit);
+    swap(first.cars, second.cars);
+    swap(first.obstacole, second.obstacole);
+    swap(first.powerUps, second.powerUps);
+}
 
 circuit::~circuit()
 {
-    std::cout << "destructor: circuitul " << numeCircuit << " se incheie\n";
+    contorCircuite--;
+    std::cout << "destructor: circuitul " << numeCircuit << " se incheie. Ramase: " << contorCircuite << "\n";
+}
+
+int circuit::getContor() {
+    return contorCircuite;
 }
 
 void circuit::addCar(const car& masina)
@@ -26,13 +74,155 @@ void circuit::addObst(const obstacol& obst)
     obstacole.push_back(obst);
 }
 
+void circuit::addPowerUp(std::unique_ptr<PowerUp> pwrUp)
+{
+    powerUps.push_back(std::move(pwrUp));
+}
+
+// --- HELPER FUNCTIONS PENTRU COLIZIUNI (SAT) ---
+
+struct Point { float x, y; };
+
+std::array<Point, 4> getCorners(const vector& pos, float w, float h, float rotationDeg) {
+    float angleRad = rotationDeg * DEG_TO_RAD;
+    float cosA = std::cos(angleRad);
+    float sinA = std::sin(angleRad);
+
+    float dx = w / 2.0f;
+    float dy = h / 2.0f;
+
+    return {
+        Point{ pos.getx() + (dx * cosA - dy * sinA), pos.gety() + (dx * sinA + dy * cosA) },
+        Point{ pos.getx() + (-dx * cosA - dy * sinA), pos.gety() + (-dx * sinA + dy * cosA) },
+        Point{ pos.getx() + (-dx * cosA - (-dy) * sinA), pos.gety() + (-dx * sinA + (-dy) * cosA) },
+        Point{ pos.getx() + (dx * cosA - (-dy) * sinA), pos.gety() + (dx * sinA + (-dy) * cosA) }
+    };
+}
+
+void project(const std::array<Point, 4>& corners, Point axis, float& min, float& max) {
+    min = std::numeric_limits<float>::max();
+    max = std::numeric_limits<float>::lowest();
+
+    for (const auto& p : corners) {
+        float dot = p.x * axis.x + p.y * axis.y;
+        if (dot < min) min = dot;
+        if (dot > max) max = dot;
+    }
+}
+
+bool checkCollisionSAT(const vector& posA, float wA, float hA, float rotA,
+                       const vector& posB, float wB, float hB, float rotB,
+                       vector& outNormal, float& outDepth)
+{
+    auto cornersA = getCorners(posA, wA, hA, rotA);
+    auto cornersB = getCorners(posB, wB, hB, rotB);
+
+    std::array<Point, 4> axes;
+
+    axes[0] = { cornersA[1].x - cornersA[0].x, cornersA[1].y - cornersA[0].y };
+    axes[1] = { cornersA[1].x - cornersA[2].x, cornersA[1].y - cornersA[2].y };
+    axes[2] = { cornersB[1].x - cornersB[0].x, cornersB[1].y - cornersB[0].y };
+    axes[3] = { cornersB[1].x - cornersB[2].x, cornersB[1].y - cornersB[2].y };
+
+    float minOverlap = std::numeric_limits<float>::max();
+    Point smallestAxis = {0, 0};
+
+    for (int i = 0; i < 4; i++) {
+        float len = std::sqrt(axes[i].x * axes[i].x + axes[i].y * axes[i].y);
+        if (len == 0) continue;
+        Point axis = { axes[i].x / len, axes[i].y / len };
+
+        float minA, maxA, minB, maxB;
+        project(cornersA, axis, minA, maxA);
+        project(cornersB, axis, minB, maxB);
+
+        if (maxA < minB || maxB < minA) {
+            return false;
+        }
+
+        float overlap = std::min(maxA, maxB) - std::max(minA, minB);
+        if (overlap < minOverlap) {
+            minOverlap = overlap;
+            smallestAxis = axis;
+        }
+    }
+
+    outDepth = minOverlap;
+
+    vector centerA = posA;
+    vector centerB = posB;
+    float dirX = centerA.getx() - centerB.getx();
+    float dirY = centerA.gety() - centerB.gety();
+
+    if (dirX * smallestAxis.x + dirY * smallestAxis.y < 0) {
+        smallestAxis.x = -smallestAxis.x;
+        smallestAxis.y = -smallestAxis.y;
+    }
+
+    outNormal = vector(smallestAxis.x, smallestAxis.y);
+    return true;
+}
+
+// ---------------------------------------------
+
+void circuit::gestioneazaColiziuni()
+{
+    for (car& masina : cars)
+    {
+        if (masina.eliminata()) continue;
+
+        for (const obstacol& obs : obstacole)
+        {
+            vector colNormal(0,0);
+            float colDepth = 0;
+
+            bool isColliding = checkCollisionSAT(
+                masina.getPozitie(), masina.getLatime(), masina.getLungime(), masina.getUnghi(),
+                obs.getPozitie(), obs.getLat(), obs.getLung(), obs.getRotatie(),
+                colNormal, colDepth
+            );
+
+            if (isColliding)
+            {
+                // REZOLVARE FIZICA
+                vector currentPos = masina.getPozitie();
+                // Push factor 1.1 sa fim siguri ca iese
+                float pushFactor = 1.1f;
+                vector pushBack(colNormal.getx() * colDepth * pushFactor, colNormal.gety() * colDepth * pushFactor);
+
+                masina.setPozitie(vector(currentPos.getx() + pushBack.getx(), currentPos.gety() + pushBack.gety()));
+
+                // LOGICA JOC (Damage + Imunitate)
+                if (!masina.esteImuna())
+                {
+                    masina.onCollision();
+                    masina.brake();
+                    masina.activeazaImunitate(2.0f); // 2 secunde imunitate
+
+                    std::cout << "[COLLISION] Lovitura! Imunitate 2s.\n";
+                }
+
+                if (masina.eliminata())
+                    break;
+            }
+        }
+    }
+}
+
 void circuit::checkPwrUps()
 {
     for (auto& car : cars) {
         for (auto it = powerUps.begin(); it != powerUps.end(); )
         {
-            if (car.getPozitie().distance((*it)->getPozitie()) < 3.0)
+            if (car.getPozitie().distance((*it)->getPozitie()) < 35.0) 
             {
+                // --- DYNAMIC CAST DEMO ---
+                // Verificam daca e penalizare ca sa radem de jucator
+                if (auto* pen = dynamic_cast<PenalizareMotor*>(it->get())) {
+                    std::cout << "[GAME INFO] Atentie! Se apropie o penalizare de motor!\n";
+                    (void)pen; // avoid unused warning, doar pentru demo
+                }
+
                 (*it)->aplicaEfect(car);
                 it = powerUps.erase(it);
             } else
@@ -45,17 +235,12 @@ void circuit::checkPwrUps()
 
 void circuit::simulat(float dTime)
 {
-    std::cout << "\n=== SIM (timp: " << dTime << " s) in " << numeCircuit << "==\n";
-    if(cars.empty())
-    {
-        std::cout << "Nu sunt masini pe circuit.\n";
-        return;
-    }
+    if(cars.empty()) return;
+
     for (auto& car : cars)
     {
         float factorFrictiune = 0.98f;
         car.aplicaFrictiune(factorFrictiune);
-
         car.uptState(dTime);
     }
 
@@ -79,82 +264,39 @@ void circuit::simulat(float dTime)
 std::ostream& operator<<(std::ostream& os, const circuit& circuit)
 {
     os << " --- Statusul circuitului: " << circuit.numeCircuit << " ---\n";
-    os << "Obstacole:\n";
-    if(circuit.obstacole.empty())
-    {
-    os << "None\n";
-    }
-    else
-    {
-        for(const auto& obs : circuit.obstacole)
-        {
-            os << " " << obs << "\n";
-        }
-    }
-    os << "Masini din circuit:\n";
-    if (circuit.cars.empty())
-    {
-        os << "None\n";
-    }
-    else
-    {
-        for (const auto& car : circuit.cars)
-            {
-                os << " " << car << "\n";
-        }
-    }
-    os << "-----------------------------------\n";
+    os << "Obstacole: " << circuit.obstacole.size() << "\n";
+    os << "Masini: " << circuit.cars.size() << "\n";
     return os;
 }
 
-bool circuit::incarcaFisier(const std::string& cale)
+bool circuit::incarcaFisier(const std::string& cale, sf::Texture& texObs, sf::Texture& texPwr)
 {
+    (void)texPwr;
+
     std::ifstream fisier(cale);
     if(!fisier.is_open())
     {
-        std::cout << "ERROARE LA DESCHIDERE FISIER \n";
-        return false;
+        throw FileLoadException(cale);
     }
 
+    std::cout << "Se incarca din fisier...\n";
     char tipObiect;
     while (fisier >> tipObiect)
     {
         if (tipObiect == 'O')
         {
-            float x, y, raza;
-            fisier >> x >> y >> raza;
-            //addObst(obstacol(vector(x, y), raza));
+            float x, y, lat, lung, rot;
+            if(fisier >> x >> y >> lat >> lung >> rot) {
+                 addObst(obstacol(vector(x, y), lat, lung, rot, texObs));
+            }
         }
-        /*
-        else if (tipObiect == 'C')
-        {
-            std::string nume;
-            float x, y;
-            int fuel, consum;
-            fisier >> nume >> x >> y >> fuel >> consum;
-            addCar(car(nume, vector(x, y), fuel, consum));
-        }
-        */
         else if (tipObiect == 'P')
         {
             int tipPowerUp;
             float x, y;
-            fisier >> tipPowerUp >> x >> y;
-            if (tipPowerUp == 1)
+            if(fisier >> tipPowerUp >> x >> y)
             {
-                powerUps.push_back(std::make_unique<KitReparatie>(vector(x, y)));
-            }
-            else if (tipPowerUp == 2)
-            {
-                powerUps.push_back(std::make_unique<BoostNitro>(vector(x, y)));
-            }
-            else if (tipPowerUp == 3)
-            {
-                 powerUps.push_back(std::make_unique<RefillCombustibil>(vector(x, y)));
-            }
-            else if (tipPowerUp == 4)
-            {
-                powerUps.push_back(std::make_unique<PenalizareMotor>(vector(x, y)));
+                // logica powerups...
             }
         }
     }
@@ -166,58 +308,13 @@ const std::vector<obstacol>& circuit::getObstacole() const
     return obstacole;
 }
 
+const std::vector<std::unique_ptr<PowerUp>>& circuit::getPowerUps() const
+{
+    return powerUps;
+}
+
 car* circuit::getPlayerCar()
 {
-
-    if (cars.empty())
-    {
-        return nullptr;
-    }
+    if (cars.empty()) return nullptr;
     return &cars[0];
-}
-
-float clamp(float val, float min, float max) {
-    return std::max(min, std::min(val, max));
-}
-
-void circuit::gestioneazaColiziuni()
-{
-    for (car& masina : cars)
-    {
-        if (masina.eliminata()) continue;
-
-        float carHalfWidth = masina.getLatime() / 2.0f;
-        float carHalfHeight = masina.getLungime() / 2.0f;
-        float carAngle = masina.getUnghi();
-        vector carPos = masina.getPozitie();
-
-        float carAngleRad = carAngle * (3.14159f / 180.0f);
-        float cosAngle = std::cos(-carAngleRad);
-        float sinAngle = std::sin(-carAngleRad);
-
-        for (const obstacol& obs : obstacole)
-        {
-            vector obsPos = obs.getPozitie();
-            float obsRad = obs.getRaza();
-
-            vector vecToCircle = vector(obsPos.getx() - carPos.getx(), obsPos.gety() - carPos.gety());
-
-            float localCircleX = vecToCircle.getx() * cosAngle - vecToCircle.gety() * sinAngle;
-            float localCircleY = vecToCircle.getx() * sinAngle + vecToCircle.gety() * cosAngle;
-
-            float closestX = clamp(localCircleX, -carHalfWidth, carHalfWidth);
-            float closestY = clamp(localCircleY, -carHalfHeight, carHalfHeight);
-
-            float dx = localCircleX - closestX;
-            float dy = localCircleY - closestY;
-            float distanceSquared = (dx * dx) + (dy * dy);
-
-            if (distanceSquared < (obsRad * obsRad))
-            {
-                masina.onCollision();
-                if (masina.eliminata())
-                    break;
-            }
-        }
-    }
 }
