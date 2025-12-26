@@ -119,9 +119,7 @@ int main() {
                 pwrUp->draw(window);
             }
 
-            if (playerCar != nullptr) {
-                playerCar->draw(window);
-            }
+            playerCar->draw(window);
 
             window.display();
 

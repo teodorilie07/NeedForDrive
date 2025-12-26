@@ -5,11 +5,13 @@
 class vector
 {
 private:
-    float x, y;
+    float x;
+    float y;
 
 public:
-
-    vector(float xVal = 0, float yVal = 0);
+    explicit vector(float xVal = 0, float yVal = 0);
+    vector(const vector& other);
+    vector& operator=(const vector& other);
 
     float getx() const;
     float gety() const;
