@@ -21,13 +21,13 @@ circuit::circuit(std::string numeCircuit) : numeCircuit(std::move(numeCircuit))
     contorCircuite++;
 }
 
-// Copy Constructor
+ 
 circuit::circuit(const circuit& other)
     : numeCircuit(other.numeCircuit + "_copy"),
       cars(other.cars),
       obstacole(other.obstacole)
 {
-    // Deep copy pentru vectorul de unique_ptr
+     
     for (const auto& ptr : other.powerUps) {
         if (ptr) {
             powerUps.push_back(ptr->clone());
@@ -37,14 +37,14 @@ circuit::circuit(const circuit& other)
     std::cout << "Copy Constructor Circuit. Total: " << contorCircuite << "\n";
 }
 
-// Assignment Operator (Copy and Swap)
+ 
 circuit& circuit::operator=(circuit other)
 {
     swap(*this, other);
     return *this;
 }
 
-// Swap Helper
+ 
 void swap(circuit& first, circuit& second) noexcept
 {
     using std::swap;
@@ -79,7 +79,7 @@ void circuit::addPowerUp(std::unique_ptr<PowerUp> pwrUp)
     powerUps.push_back(std::move(pwrUp));
 }
 
-// --- HELPER FUNCTIONS PENTRU COLIZIUNI (SAT) ---
+ 
 
 struct Point { float x, y; };
 
@@ -163,7 +163,7 @@ bool checkCollisionSAT(const vector& posA, float wA, float hA, float rotA,
     return true;
 }
 
-// ---------------------------------------------
+ 
 
 void circuit::gestioneazaColiziuni()
 {
@@ -184,20 +184,20 @@ void circuit::gestioneazaColiziuni()
 
             if (isColliding)
             {
-                // REZOLVARE FIZICA
+                 
                 vector currentPos = masina.getPozitie();
-                // Push factor 1.1 sa fim siguri ca iese
+                 
                 float pushFactor = 1.1f;
                 vector pushBack(colNormal.getx() * colDepth * pushFactor, colNormal.gety() * colDepth * pushFactor);
 
                 masina.setPozitie(vector(currentPos.getx() + pushBack.getx(), currentPos.gety() + pushBack.gety()));
 
-                // LOGICA JOC (Damage + Imunitate)
+                 
                 if (!masina.esteImuna())
                 {
                     masina.onCollision();
                     masina.brake();
-                    masina.activeazaImunitate(2.0f); // 2 secunde imunitate
+                    masina.activeazaImunitate(2.0f);  
 
                     std::cout << "[COLLISION] Lovitura! Imunitate 2s.\n";
                 }
@@ -216,11 +216,11 @@ void circuit::checkPwrUps()
         {
             if (car.getPozitie().distance((*it)->getPozitie()) < 35.0) 
             {
-                // --- DYNAMIC CAST DEMO ---
-                // Verificam daca e penalizare ca sa radem de jucator
+                 
+                 
                 if (auto* pen = dynamic_cast<PenalizareMotor*>(it->get())) {
                     std::cout << "[GAME INFO] Atentie! Se apropie o penalizare de motor!\n";
-                    (void)pen; // avoid unused warning, doar pentru demo
+                    (void)pen;  
                 }
 
                 (*it)->aplicaEfect(car);
@@ -296,7 +296,7 @@ bool circuit::incarcaFisier(const std::string& cale, sf::Texture& texObs, sf::Te
             float x, y;
             if(fisier >> tipPowerUp >> x >> y)
             {
-                // logica powerups...
+                 
             }
         }
     }

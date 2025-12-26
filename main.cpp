@@ -9,6 +9,7 @@
 #include "penalizare.h"
 #include "refill.h"
 #include "erori.h"
+#include "checkpoint.h"
 
 int main() {
     try {
@@ -38,6 +39,7 @@ int main() {
         sf::Sprite backgroundSprite(backgroundTexture);
 
         circuit circuitul("Circuitul Monza");
+        CheckpointManager checkpointManager;
 
         car masinaLogica("Player", vector(400.f, 500.f), 100, 1, carTexture);
         circuitul.addCar(masinaLogica);
@@ -45,6 +47,21 @@ int main() {
         std::cout << "Incarcarea circuitului din fisierul 'tastatura.txt'...\n";
 
         circuitul.incarcaFisier("tastatura.txt", obstacolTexture, powerUpTexture);
+        checkpointManager.loadFromFile("tastatura.txt");
+
+         
+        float circuitLength = checkpointManager.getCircuitLength();
+         
+         
+        double estimatedFuelNeeded = (circuitLength * 0.15) * 1.10; 
+        
+        std::cout << "[INFO] Lungime circuit: " << circuitLength << " px.\n";
+        std::cout << "[INFO] Combustibil necesar estimat: " << estimatedFuelNeeded << "\n";
+        
+         
+        if (car* pCar = circuitul.getPlayerCar()) {
+            pCar->setFuel(estimatedFuelNeeded);
+        }
 
         obstacol obstacolLogic(vector(350.f, 150.f), 50.f, 50.f, 45.f, obstacolTexture);
         circuitul.addObst(obstacolLogic);
@@ -79,7 +96,7 @@ int main() {
                 throw GameLogicException("Masina jucatorului a disparut!");
             }
 
-            float moveAcceleration = 100.f;
+            float moveAcceleration = 200.f;  
             float rotationSpeed = 100.f;
 
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) {
@@ -96,9 +113,11 @@ int main() {
             }
 
             circuitul.simulat(dTime);
+            checkpointManager.update(*playerCar);
 
             window.clear(sf::Color::Black);
             window.draw(backgroundSprite);
+            checkpointManager.draw(window);
 
             for (const auto& obs : circuitul.getObstacole()) {
                 obs.draw(window);

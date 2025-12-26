@@ -43,6 +43,7 @@ public:
 
     void setPozitie(const vector& pos);
     void setViteza(const vector& vel);
+    void setFuel(double valoare);
 
     void aplicaDamage(int valoare);
     void adaugaCombustibil(int cantitate);
@@ -51,6 +52,8 @@ public:
 
     void activeazaImunitate(float secunde);
     bool esteImuna() const;
+
+    sf::FloatRect getGlobalBounds() const;
 
     void draw(sf::RenderWindow& window);
     friend std::ostream& operator<<(std::ostream& os, const car& car);

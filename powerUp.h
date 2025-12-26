@@ -22,7 +22,7 @@ public:
 
     virtual void aplicaEfect(car& masina) = 0;
     
-    // Virtual Constructor (Clone)
+     
     virtual std::unique_ptr<PowerUp> clone() const = 0;
 
     void draw(sf::RenderWindow& window) const;

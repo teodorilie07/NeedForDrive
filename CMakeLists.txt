@@ -57,6 +57,7 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         powerUp.cpp
         penalizare.cpp
         refill.cpp
+        checkpoint.cpp
         erori.h
 )
 

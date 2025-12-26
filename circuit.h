@@ -24,11 +24,11 @@ private:
 public:
     explicit circuit(std::string numeCircuit);
     
-    // Copy Constructor
+     
     circuit(const circuit& other);
-    // Assignment Operator
+     
     circuit& operator=(circuit other);
-    // Swap helper
+     
     friend void swap(circuit& first, circuit& second) noexcept;
 
     ~circuit();

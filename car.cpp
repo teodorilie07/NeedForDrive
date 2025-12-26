@@ -49,13 +49,13 @@ car::car(const car& other):
     unghi(other.unghi),
     latime(other.latime),
     lungime(other.lungime),
-    m_sprite(other.m_sprite),   // Copiem sprite-ul explicit
+    m_sprite(other.m_sprite),    
     immunityTimer(other.immunityTimer)
 {
     std::cout << "Cpy construct: o copie a "<< nume << " a fost creata.\n";
 }
 
-// --- Operator= ---
+ 
 car& car::operator=(const car& other)
 {
     if (this != &other)
@@ -73,8 +73,8 @@ car& car::operator=(const car& other)
         this->m_sprite = other.m_sprite;
         this->immunityTimer = other.immunityTimer;
 
-        // NOTA: Membrii const (consum, damageMax) NU pot fi modificati aici.
-        // Ei raman cu valoarea originala a obiectului din stanga egalului.
+         
+         
     }
     return *this;
 }
@@ -91,7 +91,7 @@ void car::uptState(float dTime)
             pozitie.gety() + viteza.gety() * dTime
         );
 
-    // Scadem timpul de imunitate
+     
     if (immunityTimer > 0.0f) {
         immunityTimer -= dTime;
         if (immunityTimer < 0.0f) immunityTimer = 0.0f;
@@ -132,6 +132,7 @@ const vector& car::getViteza() const { return viteza; }
 
 void car::setPozitie(const vector& pos) { pozitie = pos; }
 void car::setViteza(const vector& vel) { viteza = vel; }
+void car::setFuel(double valoare) { this->fuel = valoare; }
 
 std::ostream& operator<<(std::ostream& os, const car& car)
 {
@@ -171,13 +172,17 @@ void car::aplicaFrictiune(float factor)
 float car::getLatime() const { return latime; }
 float car::getLungime() const { return lungime; }
 
-// --- Imunitate ---
+ 
 void car::activeazaImunitate(float secunde) {
     immunityTimer = secunde;
 }
 
 bool car::esteImuna() const {
     return immunityTimer > 0.0f;
+}
+
+sf::FloatRect car::getGlobalBounds() const {
+    return m_sprite.getGlobalBounds();
 }
 
 void car::onCollision()
