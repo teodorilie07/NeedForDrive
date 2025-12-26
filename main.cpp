@@ -63,14 +63,6 @@ int main() {
             pCar->setFuel(estimatedFuelNeeded);
         }
 
-        obstacol obstacolLogic(vector(350.f, 150.f), 50.f, 50.f, 45.f, obstacolTexture);
-        circuitul.addObst(obstacolLogic);
-
-        circuitul.addPowerUp(std::make_unique<KitReparatie>(vector(100.f, 500.f), powerUpTexture));
-        circuitul.addPowerUp(std::make_unique<BoostNitro>(vector(200.f, 500.f), powerUpTexture));
-        circuitul.addPowerUp(std::make_unique<RefillCombustibil>(vector(300.f, 500.f), powerUpTexture));
-        circuitul.addPowerUp(std::make_unique<PenalizareMotor>(vector(50.f, 500.f), powerUpTexture));
-
         std::cout << "\n--- Configurarea initiala a circuitului ---\n";
         std::cout << circuitul;
 

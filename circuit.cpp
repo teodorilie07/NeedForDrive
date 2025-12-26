@@ -9,6 +9,9 @@
 #include "obstacol.h"
 #include "powerUp.h"
 #include "penalizare.h"
+#include "boost.h"
+#include "kit.h"
+#include "refill.h"
 #include "erori.h"
 
 constexpr float PI = 3.14159265f;
@@ -297,7 +300,23 @@ bool circuit::incarcaFisier(const std::string& cale, sf::Texture& texObs, sf::Te
             float x, y;
             if(fisier >> tipPowerUp >> x >> y)
             {
-                 
+                switch (tipPowerUp) {
+                    case 1:
+                        addPowerUp(std::make_unique<KitReparatie>(vector(x, y), texPwr));
+                        break;
+                    case 2:
+                        addPowerUp(std::make_unique<BoostNitro>(vector(x, y), texPwr));
+                        break;
+                    case 3:
+                        addPowerUp(std::make_unique<RefillCombustibil>(vector(x, y), texPwr));
+                        break;
+                    case 4:
+                        addPowerUp(std::make_unique<PenalizareMotor>(vector(x, y), texPwr));
+                        break;
+                    default:
+                        std::cerr << "Tip PowerUp necunoscut: " << tipPowerUp << "\n";
+                        break;
+                }
             }
         }
     }

@@ -52,12 +52,16 @@ void CheckpointManager::update(const car& playerCar) {
     if (m_checkpoints[m_nextCheckpointIndex].shape.getGlobalBounds().findIntersection(playerCar.getGlobalBounds())) {
         std::cout << "Checkpoint " << m_nextCheckpointIndex << " atins!\n";
         
+        bool wasFinishLine = m_checkpoints[m_nextCheckpointIndex].isFinishLine;
+
         m_nextCheckpointIndex++;
-         
         if (m_nextCheckpointIndex >= static_cast<int>(m_checkpoints.size())) {
             m_nextCheckpointIndex = 0;
+        }
+
+        if (wasFinishLine) {
             m_currentLap++;
-            std::cout << "Tura " << getLaps() << " completata!\n";
+            std::cout << "Tura " << getLaps() << " completata! (Finish Line trecut)\n";
         }
     }
 }
