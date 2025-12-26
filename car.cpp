@@ -123,7 +123,8 @@ void car::acceleratie(float forta)
 
 void car::brake()
 {
-    viteza = vector(viteza.getx() * 0.9f, viteza.gety() * 0.9f);
+    vector v = getViteza();
+    setViteza(vector(v.getx() * 0.9f, v.gety() * 0.9f));
 }
 
 const std::string& car::getNume() const { return nume; }

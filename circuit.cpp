@@ -57,7 +57,7 @@ void swap(circuit& first, circuit& second) noexcept
 circuit::~circuit()
 {
     contorCircuite--;
-    std::cout << "destructor: circuitul " << numeCircuit << " se incheie. Ramase: " << contorCircuite << "\n";
+    std::cout << "destructor: circuitul " << numeCircuit << " se incheie. Ramase: " << getContor() << "\n";
 }
 
 int circuit::getContor() {
@@ -223,6 +223,7 @@ void circuit::checkPwrUps()
                     (void)pen;  
                 }
 
+                (*it)->printInfo();
                 (*it)->aplicaEfect(car);
                 it = powerUps.erase(it);
             } else

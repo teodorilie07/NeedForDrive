@@ -57,7 +57,7 @@ void CheckpointManager::update(const car& playerCar) {
         if (m_nextCheckpointIndex >= static_cast<int>(m_checkpoints.size())) {
             m_nextCheckpointIndex = 0;
             m_currentLap++;
-            std::cout << "Tura " << m_currentLap << " completata!\n";
+            std::cout << "Tura " << getLaps() << " completata!\n";
         }
     }
 }
