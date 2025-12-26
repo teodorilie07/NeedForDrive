@@ -7,7 +7,7 @@ obstacol::obstacol(const vector& pos, float lat, float lung, float rot, sf::Text
 {
     const auto bounds = m_sprite.getLocalBounds();
 
-    m_sprite.setOrigin(bounds.size / 2.f);
+    m_sprite.setOrigin(bounds.position + bounds.size / 2.f);
     m_sprite.setPosition(toSfmlVector(pozitie));
 
     m_sprite.setRotation(sf::degrees(rotatie));

@@ -91,6 +91,21 @@ void car::uptState(float dTime)
             pozitie.gety() + viteza.gety() * dTime
         );
 
+    // Invisible wall logic (no penalty)
+    float x = pozitie.getx();
+    float y = pozitie.gety();
+    float vx = viteza.getx();
+    float vy = viteza.gety();
+    
+    if (x < 0.0f) { x = 0.0f; vx = 0.0f; }
+    else if (x > 1024.0f) { x = 1024.0f; vx = 0.0f; }
+
+    if (y < 0.0f) { y = 0.0f; vy = 0.0f; }
+    else if (y > 640.0f) { y = 640.0f; vy = 0.0f; }
+
+    pozitie = vector(x, y);
+    viteza = vector(vx, vy);
+
      
     if (immunityTimer > 0.0f) {
         immunityTimer -= dTime;
