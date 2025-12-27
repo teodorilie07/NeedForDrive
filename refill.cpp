@@ -1,13 +1,13 @@
 #include "refill.h"
 #include <iostream>
 
-RefillCombustibil::RefillCombustibil(const vector& poz, sf::Texture& texturaPowerUp)
-    : PowerUp(poz, texturaPowerUp){}
+RefillCombustibil::RefillCombustibil(const vector& poz, sf::Texture& texturaPowerUp, int cantitate)
+    : PowerUp(poz, texturaPowerUp), cantitate(cantitate) {}
 
 void RefillCombustibil::aplicaEfect(car& masina) 
 {
-    std::cout << "[POWER-UP] " << masina.getNume() << " a colectat o canistra de combustibil\n";
-    masina.adaugaCombustibil(50);
+    std::cout << "[POWER-UP] " << masina.getNume() << " a colectat o canistra de combustibil (+ " << cantitate << ")\n";
+    masina.adaugaCombustibil(cantitate);
 }
 
 std::unique_ptr<PowerUp> RefillCombustibil::clone() const 

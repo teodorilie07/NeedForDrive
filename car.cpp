@@ -91,7 +91,7 @@ void car::uptState(float dTime)
             pozitie.gety() + viteza.gety() * dTime
         );
 
-    // Invisible wall logic (no penalty)
+     
     float x = pozitie.getx();
     float y = pozitie.gety();
     float vx = viteza.getx();
@@ -148,7 +148,12 @@ const vector& car::getViteza() const { return viteza; }
 
 void car::setPozitie(const vector& pos) { pozitie = pos; }
 void car::setViteza(const vector& vel) { viteza = vel; }
-void car::setFuel(double valoare) { this->fuel = valoare; }
+void car::setFuel(double valoare) { 
+    if (valoare < 0) {
+        throw InvalidStatsException(nume, "Combustibilul nu poate fi negativ!");
+    }
+    this->fuel = valoare; 
+}
 
 std::ostream& operator<<(std::ostream& os, const car& car)
 {
@@ -160,7 +165,12 @@ void car::aplicaDamage(int valoare)
 {
     this->damage += valoare;
     if(this->damage > this->damageMax) this->damage = this->damageMax;
-    std::cout << "[INFO] " << this->nume << " a lovit ceva! Damage: " << this->damage << "/" << this->damageMax << "\n";
+    if(this->damage < 0) this->damage = 0;
+
+    if (valoare > 0)
+        std::cout << "[INFO] " << this->nume << " a lovit ceva! Damage: " << this->damage << "/" << this->damageMax << "\n";
+    else
+        std::cout << "[INFO] " << this->nume << " a fost reparata. Damage: " << this->damage << "/" << this->damageMax << "\n";
 }
 
 bool car::eliminata() const { return this->damage >= this->damageMax; }
@@ -168,8 +178,11 @@ bool car::eliminata() const { return this->damage >= this->damageMax; }
 void car::adaugaCombustibil(int cantitate)
 {
     fuel += cantitate;
-    if (fuel > 100) fuel = 100;
+    if (fuel > maxFuel) fuel = maxFuel;
 }
+
+void car::setMaxFuel(double val) { maxFuel = val; }
+double car::getMaxFuel() const { return maxFuel; }
 
 void car::penalizareMotor(float penalizare)
 {

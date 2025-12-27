@@ -53,20 +53,27 @@ int main() {
         float circuitLength = checkpointManager.getCircuitLength();
          
          
-        double estimatedFuelNeeded = (circuitLength * 0.15) * 1.10; 
+         
+        double fuelPerLap = circuitLength * 0.35; 
         
         std::cout << "[INFO] Lungime circuit: " << circuitLength << " px.\n";
-        std::cout << "[INFO] Combustibil necesar estimat: " << estimatedFuelNeeded << "\n";
+        std::cout << "[INFO] Combustibil estimat per tur: " << fuelPerLap << "\n";
         
-         
+        circuitul.setRefillAmount(static_cast<int>(fuelPerLap));  
+
         if (car* pCar = circuitul.getPlayerCar()) {
-            pCar->setFuel(estimatedFuelNeeded);
+            pCar->setMaxFuel(fuelPerLap * 3.0);  
+            pCar->setFuel(fuelPerLap * 1.5);  
         }
+
+         
+        circuitul.regeneratePowerUps(powerUpTexture);
 
         std::cout << "\n--- Configurarea initiala a circuitului ---\n";
         std::cout << circuitul;
 
         sf::Clock clock;
+        int lastLap = 0;
 
         while (window.isOpen())
         {
@@ -87,6 +94,17 @@ int main() {
             if (playerCar == nullptr) {
                 throw GameLogicException("Masina jucatorului a disparut!");
             }
+
+             
+            int currentLap = checkpointManager.getLaps();
+            if (currentLap > lastLap) {
+                if (currentLap > 0 && currentLap % 2 == 0) {
+                    std::cout << "[GAME LOGIC] Sfarsit de tura para (" << currentLap << "). Regenerare PowerUps...\n";
+                    circuitul.regeneratePowerUps(powerUpTexture);
+                }
+                lastLap = currentLap;
+            }
+             
 
             float moveAcceleration = 200.f;  
             float rotationSpeed = 100.f;

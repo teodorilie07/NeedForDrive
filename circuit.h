@@ -16,6 +16,8 @@ private:
     std::vector<car> cars;
     std::vector<obstacol> obstacole;
     std::vector<std::unique_ptr<PowerUp>> powerUps;
+    std::vector<vector> powerUpSpawnPoints;
+    int refillAmount = 100;
     static int contorCircuite;
 
     void checkPwrUps();
@@ -23,6 +25,9 @@ private:
 
 public:
     explicit circuit(std::string numeCircuit);
+    
+    void setRefillAmount(int val) { refillAmount = val; }
+
     
      
     circuit(const circuit& other);
@@ -38,6 +43,7 @@ public:
     void addCar(const car& masina);
     void addObst(const obstacol& obst);
     void addPowerUp(std::unique_ptr<PowerUp> pwrUp);
+    void regeneratePowerUps(sf::Texture& texPwr);
 
     [[nodiscard]] const std::vector<std::unique_ptr<PowerUp>>& getPowerUps() const;
     [[nodiscard]] const std::vector<obstacol>& getObstacole() const;

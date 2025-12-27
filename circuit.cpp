@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <array>
 #include <limits>
+#include <random>
 #include "car.h"
 #include "obstacol.h"
 #include "powerUp.h"
@@ -300,26 +301,12 @@ bool circuit::incarcaFisier(const std::string& cale, sf::Texture& texObs, sf::Te
             float x, y;
             if(fisier >> tipPowerUp >> x >> y)
             {
-                switch (tipPowerUp) {
-                    case 1:
-                        addPowerUp(std::make_unique<KitReparatie>(vector(x, y), texPwr));
-                        break;
-                    case 2:
-                        addPowerUp(std::make_unique<BoostNitro>(vector(x, y), texPwr));
-                        break;
-                    case 3:
-                        addPowerUp(std::make_unique<RefillCombustibil>(vector(x, y), texPwr));
-                        break;
-                    case 4:
-                        addPowerUp(std::make_unique<PenalizareMotor>(vector(x, y), texPwr));
-                        break;
-                    default:
-                        std::cerr << "Tip PowerUp necunoscut: " << tipPowerUp << "\n";
-                        break;
-                }
+                powerUpSpawnPoints.emplace_back(x, y);
             }
         }
     }
+     
+    regeneratePowerUps(texPwr);
     return true;
 }
 
@@ -337,4 +324,57 @@ car* circuit::getPlayerCar()
 {
     if (cars.empty()) return nullptr;
     return &cars[0];
+}
+void circuit::regeneratePowerUps(sf::Texture& texPwr)
+{
+    powerUps.clear();  
+
+    if (powerUpSpawnPoints.empty()) return;
+
+    std::vector<int> types;
+     
+     
+     
+    
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::uniform_int_distribution<> distr(1, 4);
+
+    for (size_t i = 0; i < powerUpSpawnPoints.size(); ++i) {
+        types.push_back(distr(g));
+    }
+    
+     
+     
+     
+     
+     
+     
+     
+    
+    types.clear();
+    std::vector<int> allTypes = {1, 2, 3, 4};
+    if (powerUpSpawnPoints.size() == 4) {
+        types = allTypes;
+        std::shuffle(types.begin(), types.end(), g);
+    } else {
+         
+         for (size_t i = 0; i < powerUpSpawnPoints.size(); ++i) {
+            types.push_back(distr(g));
+        }
+    }
+
+    for (size_t i = 0; i < powerUpSpawnPoints.size(); ++i)
+    {
+        int type = types[i];
+        vector pos = powerUpSpawnPoints[i];
+        
+        switch (type) {
+            case 1: addPowerUp(std::make_unique<KitReparatie>(pos, texPwr)); break;
+            case 2: addPowerUp(std::make_unique<BoostNitro>(pos, texPwr)); break;
+            case 3: addPowerUp(std::make_unique<RefillCombustibil>(pos, texPwr, refillAmount)); break;
+            case 4: addPowerUp(std::make_unique<PenalizareMotor>(pos, texPwr)); break;
+        }
+    }
+    std::cout << "[INFO] PowerUps regenerate random!\n";
 }

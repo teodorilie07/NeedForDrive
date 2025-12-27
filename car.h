@@ -10,6 +10,7 @@ private:
     vector pozitie;
     vector viteza;
     double fuel;
+    double maxFuel;
     const int consum;
     int damage;
     const int damageMax;
@@ -18,12 +19,15 @@ private:
     float latime;
     float lungime;
     sf::Sprite m_sprite;
-
     float immunityTimer;
 
 public:
     car(const std::string& nume, const vector& poz, int fuelInit, int consumMediu, sf::Texture& texturaMasinii);
     car(const car& other);
+    
+    void setMaxFuel(double val);
+    double getMaxFuel() const;
+
     car& operator=(const car& other);
     ~car();
 
