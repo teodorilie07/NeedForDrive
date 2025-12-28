@@ -10,6 +10,30 @@
 #include "refill.h"
 #include "erori.h"
 #include "checkpoint.h"
+#include "menu.h"
+
+void resetGame(circuit& circ, CheckpointManager& cm, sf::Texture& obsTex, sf::Texture& pwrTex, sf::Texture& carTex) {
+    circ = circuit("Circuitul Monza");
+    cm = CheckpointManager();
+    
+    car masinaLogica("Player", vector(400.f, 500.f), 100, 1, carTex);
+    circ.addCar(masinaLogica);
+
+    std::cout << "Incarcarea circuitului din fisierul 'tastatura.txt'...\n";
+    circ.incarcaFisier("tastatura.txt", obsTex, pwrTex);
+    cm.loadFromFile("tastatura.txt");
+
+    float circuitLength = cm.getCircuitLength();
+    double fuelPerLap = circuitLength * 0.35; 
+    circ.setRefillAmount(static_cast<int>(fuelPerLap));
+
+    if (car* pCar = circ.getPlayerCar()) {
+        pCar->setMaxFuel(fuelPerLap * 3.0); 
+        pCar->setFuel(fuelPerLap * 1.5); 
+        std::cout << "[INFO] Restart: Capacitate maxima: " << pCar->getMaxFuel() << "\n";
+    }
+    circ.regeneratePowerUps(pwrTex);
+}
 
 int main() {
     try {
@@ -38,40 +62,15 @@ int main() {
 
         sf::Sprite backgroundSprite(backgroundTexture);
 
+        
         circuit circuitul("Circuitul Monza");
         CheckpointManager checkpointManager;
-
-        car masinaLogica("Player", vector(400.f, 500.f), 100, 1, carTexture);
-        circuitul.addCar(masinaLogica);
-
-        std::cout << "Incarcarea circuitului din fisierul 'tastatura.txt'...\n";
-
-        circuitul.incarcaFisier("tastatura.txt", obstacolTexture, powerUpTexture);
-        checkpointManager.loadFromFile("tastatura.txt");
-
-         
-        float circuitLength = checkpointManager.getCircuitLength();
-         
-         
-         
-        double fuelPerLap = circuitLength * 0.35; 
-        
-        std::cout << "[INFO] Lungime circuit: " << circuitLength << " px.\n";
-        std::cout << "[INFO] Combustibil estimat per tur: " << fuelPerLap << "\n";
-        
-        circuitul.setRefillAmount(static_cast<int>(fuelPerLap));  
-
-        if (car* pCar = circuitul.getPlayerCar()) {
-            pCar->setMaxFuel(fuelPerLap * 3.0);  
-            pCar->setFuel(fuelPerLap * 1.5);  
-        }
-
-         
-        circuitul.regeneratePowerUps(powerUpTexture);
+        resetGame(circuitul, checkpointManager, obstacolTexture, powerUpTexture, carTexture);
 
         std::cout << "\n--- Configurarea initiala a circuitului ---\n";
         std::cout << circuitul;
 
+        Menu menu(window.getSize().x, window.getSize().y);
         sf::Clock clock;
         int lastLap = 0;
 
@@ -82,49 +81,87 @@ int main() {
 
             while (const auto event = window.pollEvent())
             {
-                if (event->getIf<sf::Event::Closed>()) window.close();
-                if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) 
-                {
-                    if (keyPressed->code == sf::Keyboard::Key::Backspace) window.close();
+                if (event->is<sf::Event::Closed>()) window.close();
+                
+                if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
+                    if (keyPressed->code == sf::Keyboard::Key::Escape) {
+                        menu.toggle();
+                        if (menu.isActive()) {
+                            std::cout << "Game Paused\n";
+                        } else {
+                            std::cout << "Game Resumed\n";
+                            clock.restart();
+                        }
+                    }
+
+                    if (menu.isActive()) {
+                        if (keyPressed->code == sf::Keyboard::Key::W || keyPressed->code == sf::Keyboard::Key::Up) {
+                            menu.moveUp();
+                        }
+                        if (keyPressed->code == sf::Keyboard::Key::S || keyPressed->code == sf::Keyboard::Key::Down) {
+                            menu.moveDown();
+                        }
+                        if (keyPressed->code == sf::Keyboard::Key::Enter) {
+                            int selection = menu.getPressedItem();
+                            if (selection == 0) { 
+                                menu.toggle();
+                                clock.restart();
+                            } else if (selection == 1) { 
+                                std::cout << "Restarting Game...\n";
+                                resetGame(circuitul, checkpointManager, obstacolTexture, powerUpTexture, carTexture);
+                                lastLap = 0;
+                                menu.toggle();
+                                clock.restart();
+                            } else if (selection == 2) { 
+                                window.close();
+                            }
+                        }
+                    } else {
+                        
+                        if (keyPressed->code == sf::Keyboard::Key::Backspace) window.close();
+                    }
                 }
             }
 
-            car* playerCar = circuitul.getPlayerCar();
+            if (!menu.isActive()) {
+                car* playerCar = circuitul.getPlayerCar();
 
-            if (playerCar == nullptr) {
-                throw GameLogicException("Masina jucatorului a disparut!");
-            }
-
-             
-            int currentLap = checkpointManager.getLaps();
-            if (currentLap > lastLap) {
-                if (currentLap > 0 && currentLap % 2 == 0) {
-                    std::cout << "[GAME LOGIC] Sfarsit de tura para (" << currentLap << "). Regenerare PowerUps...\n";
-                    circuitul.regeneratePowerUps(powerUpTexture);
+                if (playerCar == nullptr) {
+                    throw GameLogicException("Masina jucatorului a disparut!");
                 }
-                lastLap = currentLap;
-            }
-             
 
-            float moveAcceleration = 200.f;  
-            float rotationSpeed = 100.f;
+                
+                int currentLap = checkpointManager.getLaps();
+                if (currentLap > lastLap) {
+                    if (currentLap > 0 && currentLap % 2 == 0) {
+                        std::cout << "[GAME LOGIC] Sfarsit de tura para (" << currentLap << "). Regenerare PowerUps...\n";
+                        circuitul.regeneratePowerUps(powerUpTexture);
+                    }
+                    lastLap = currentLap;
+                }
+                
 
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) {
-                playerCar->roteste(-rotationSpeed * dTime);
-            }
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) {
-                playerCar->roteste(rotationSpeed * dTime);
-            }
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) {
-                playerCar->acceleratie(moveAcceleration * dTime);
-            }
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) {
-                playerCar->acceleratie(-moveAcceleration * 0.5f * dTime);
+                float moveAcceleration = 200.f;  
+                float rotationSpeed = 100.f;
+
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) {
+                    playerCar->roteste(-rotationSpeed * dTime);
+                }
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) {
+                    playerCar->roteste(rotationSpeed * dTime);
+                }
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) {
+                    playerCar->acceleratie(moveAcceleration * dTime);
+                }
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) {
+                    playerCar->acceleratie(-moveAcceleration * 0.5f * dTime);
+                }
+
+                circuitul.simulat(dTime);
+                checkpointManager.update(*playerCar);
             }
 
-            circuitul.simulat(dTime);
-            checkpointManager.update(*playerCar);
-
+            
             window.clear(sf::Color::Black);
             window.draw(backgroundSprite);
             checkpointManager.draw(window);
@@ -137,12 +174,16 @@ int main() {
                 pwrUp->draw(window);
             }
 
-            playerCar->draw(window);
+            if (car* pCar = circuitul.getPlayerCar()) {
+                pCar->draw(window);
+            }
+
+            if (menu.isActive()) {
+                menu.draw(window);
+            }
 
             window.display();
-
         }
-
     }
 
     catch (const GameException& e)

@@ -58,6 +58,8 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         penalizare.cpp
         refill.cpp
         checkpoint.cpp
+        menu.cpp
+        menu.h
         erori.h
 )
 
