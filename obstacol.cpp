@@ -105,9 +105,6 @@ obstacol::obstacol(const vector& pos, float lat, float lung, float rot, sf::Text
 obstacol::~obstacol() {}
 
 const vector& obstacol::getPozitie() const { return pozitie; }
-float obstacol::getLat() const { return latime; }
-float obstacol::getLung() const { return lungime; }
-float obstacol::getRotatie() const { return rotatie; }
 
 void obstacol::draw(sf::RenderWindow& window) const {
     window.draw(m_sprite);

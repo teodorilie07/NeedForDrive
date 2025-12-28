@@ -8,6 +8,7 @@
 #include "car.h"
 #include "obstacol.h"
 #include "powerUp.h"
+#include "decor.h"
 
 class circuit
 {
@@ -15,6 +16,7 @@ private:
     std::string numeCircuit;
     std::vector<car> cars;
     std::vector<obstacol> obstacole;
+    std::vector<Decor> decoruri;
     std::vector<std::unique_ptr<PowerUp>> powerUps;
     std::vector<vector> powerUpSpawnPoints;
     int refillAmount = 100;

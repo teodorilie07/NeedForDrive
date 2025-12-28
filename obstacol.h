@@ -17,9 +17,6 @@ public:
     virtual ~obstacol();
 
     const vector& getPozitie() const;
-    float getLat() const;
-    float getLung() const;
-    float getRotatie() const;
 
     void draw(sf::RenderWindow& window) const;
     bool verificaColiziune(car& masina) const;

@@ -15,6 +15,7 @@
 #include "refill.h"
 #include "motorfix.h"
 #include "erori.h"
+#include "decor.h"
 
 int circuit::contorCircuite = 0;
 
@@ -27,6 +28,7 @@ circuit::circuit(const circuit& other)
     : numeCircuit(other.numeCircuit + "_copy"),
       cars(other.cars),
       obstacole(other.obstacole),
+      decoruri(other.decoruri),
       powerUpSpawnPoints(other.powerUpSpawnPoints),
       refillAmount(other.refillAmount)
 {
@@ -52,6 +54,7 @@ void swap(circuit& first, circuit& second) noexcept
     swap(first.numeCircuit, second.numeCircuit);
     swap(first.cars, second.cars);
     swap(first.obstacole, second.obstacole);
+    swap(first.decoruri, second.decoruri);
     swap(first.powerUps, second.powerUps);
     swap(first.powerUpSpawnPoints, second.powerUpSpawnPoints);
     swap(first.refillAmount, second.refillAmount);
@@ -88,11 +91,18 @@ void circuit::gestioneazaColiziuni()
     {
         if (masina.eliminata()) continue;
 
+        // Obstacole solide
         for (const auto& obs : obstacole)
         {
             if (obs.verificaColiziune(masina)) {
                 if (masina.eliminata()) break;
             }
+        }
+
+        // Decoruri (incetinire)
+        for (const auto& dec : decoruri)
+        {
+            dec.verificaSiAplica(masina);
         }
     }
 }
@@ -152,6 +162,7 @@ std::ostream& operator<<(std::ostream& os, const circuit& circuit)
 {
     os << " --- Statusul circuitului: " << circuit.numeCircuit << " ---\n";
     os << "Obstacole: " << circuit.obstacole.size() << "\n";
+    os << "Decoruri: " << circuit.decoruri.size() << "\n";
     os << "Masini: " << circuit.cars.size() << "\n";
     return os;
 }
@@ -175,6 +186,20 @@ bool circuit::incarcaFisier(const std::string& cale, sf::Texture& texObs, sf::Te
             float x, y, lat, lung, rot;
             if(fisier >> x >> y >> lat >> lung >> rot) {
                  addObst(obstacol(vector(x, y), lat, lung, rot, texObs));
+            }
+        }
+        else if (tipObiect == 'D')
+        {
+            int nrPuncte;
+            if (fisier >> nrPuncte && nrPuncte > 0) {
+                std::vector<vector> puncte;
+                for (int i = 0; i < nrPuncte; ++i) {
+                    float x, y;
+                    if (fisier >> x >> y) {
+                        puncte.emplace_back(x, y);
+                    }
+                }
+                decoruri.emplace_back(puncte);
             }
         }
         else if (tipObiect == 'P')
@@ -214,24 +239,6 @@ car* circuit::getPlayerCar()
 
 void circuit::regeneratePowerUps(sf::Texture& texPwr)
 {
-    // Pastreaza power-up-urile fixe (tip 5) daca e cazul?
-    // Cerinta: "sa se spawn eze din 2 in doua lap-uri".
-    // Daca MotorFix e fix, nu ar trebui sters.
-    // Dar powerUps.clear() sterge tot.
-    // Daca MotorFix e in tastatura.txt ca 'P 0', va fi in spawn points.
-    // Daca e 'P 5', e incarcat direct in vector.
-    // Voi face un compromis: MotorFix e si el regenerat daca e in spawn points, sau ramane daca e static.
-    // Dar clear() sterge tot.
-    // Voi presupune ca si MotorFix trebuie regenerat sau ca nu se pierd cele statice?
-    // "daca dupa cele 2 lap-uri mai sunt power-upuri neluate, sa fie eliminate". -> clear() e corect.
-    // Deci si MotorFix dispare daca nu e luat.
-    // Dar MotorFix e la (640, 575) fix.
-    // Voi adauga punctul (640, 575) in spawn points, dar cu tip obligatoriu 5?
-    // "vreau ca power-upurile sa se spawn eze ... random ordinea lor ... TOTODATA sa mai adaugi o derivata ... la (640, 575)".
-    // Asta suna a powerup permanent/distinct.
-    
-    // Solutie: Re-adaug MotorFix la coordonatele fixe dupa clear.
-    
     powerUps.clear();
 
     if (powerUpSpawnPoints.empty()) return;
@@ -245,29 +252,6 @@ void circuit::regeneratePowerUps(sf::Texture& texPwr)
         types.push_back(distr(g));
     }
     
-    // Logic for random types permutation
-    types.clear();
-    std::vector<int> allTypes = {1, 2, 3, 4};
-    // Daca am 4 puncte, le permut.
-    // In tastatura.txt am pus 4 puncte P 0 + 1 punct P 0 (MotorFix)?
-    // Am pus: 4 puncte P 0 si 1 punct P 0. Total 5 puncte.
-    // Ultimul e MotorFix?
-    // Am pus "P 0 640 575" la final.
-    // Voi trata punctul (640, 575) special? Sau il las random?
-    // User: "sa repare motorul ... la (640, 575)".
-    
-    // Voi modifica regenerarea:
-    // Itereaza prin spawnPoints. Daca punctul e (640, 575), pune MotorFix. Altfel pune random.
-    
-    if (powerUpSpawnPoints.size() >= 4) {
-        // Shuffle types 1-4 for the first 4 points?
-        // E complicat sa ghicesc care e care.
-    }
-    
-    // Simpler approach:
-    // Generate random types.
-    // For each point: if pos == (640, 575) -> MotorFix. Else -> Random.
-
     for (size_t i = 0; i < powerUpSpawnPoints.size(); ++i)
     {
         vector pos = powerUpSpawnPoints[i];
@@ -275,11 +259,7 @@ void circuit::regeneratePowerUps(sf::Texture& texPwr)
         if (std::abs(pos.getx() - 640.f) < 1.0f && std::abs(pos.gety() - 575.f) < 1.0f) {
              addPowerUp(std::make_unique<MotorFix>(pos, texPwr));
         } else {
-            // Random 1-4
-            int type = distr(g);
-            // Daca vrem permutare pe celelalte 4 puncte:
-            // Dar nu stim cate puncte sunt exact.
-            
+            int type = types[i];
             switch (type) {
                 case 1: addPowerUp(std::make_unique<KitReparatie>(pos, texPwr)); break;
                 case 2: addPowerUp(std::make_unique<BoostNitro>(pos, texPwr)); break;
