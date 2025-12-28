@@ -9,7 +9,7 @@ private:
     sf::ConvexShape shape;
 
 public:
-    Decor(const std::vector<vector>& puncte);
+    explicit Decor(const std::vector<vector>& puncte);
     
     // Nu desenam nimic, dar verificam interactiunea
     void verificaSiAplica(car& masina) const;
