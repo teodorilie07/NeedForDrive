@@ -42,6 +42,7 @@ car::car(const car& other):
     pozitie(other.pozitie),
     viteza(other.viteza),
     fuel(other.fuel),
+    maxFuel(other.maxFuel),
     consum(other.consum),
     damage(other.damage),
     damageMax(other.damageMax),
@@ -65,6 +66,7 @@ car& car::operator=(const car& other)
         this->pozitie = other.pozitie;
         this->viteza = other.viteza;
         this->fuel = other.fuel;
+        this->maxFuel = other.maxFuel;
         this->damage = other.damage;
         this->performanta = other.performanta;
         this->unghi = other.unghi;

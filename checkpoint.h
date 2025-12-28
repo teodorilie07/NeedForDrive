@@ -7,7 +7,7 @@
 class CheckpointManager {
 private:
     struct Checkpoint {
-        sf::RectangleShape shape;
+        mutable sf::RectangleShape shape;
         bool isFinishLine;
     };
 
@@ -19,7 +19,7 @@ public:
     CheckpointManager();
     void loadFromFile(const std::string& filename);
     void update(const car& playerCar);
-    void draw(sf::RenderWindow& window);
+    void draw(sf::RenderWindow& window) const;
     int getLaps() const;
     float getCircuitLength() const;
 };

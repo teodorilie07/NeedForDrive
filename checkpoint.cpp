@@ -66,7 +66,7 @@ void CheckpointManager::update(const car& playerCar) {
     }
 }
 
-void CheckpointManager::draw(sf::RenderWindow& window) {
+void CheckpointManager::draw(sf::RenderWindow& window) const {
     if (m_checkpoints.empty()) return;
 
     for (size_t i = 0; i < m_checkpoints.size(); ++i) {

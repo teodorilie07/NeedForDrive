@@ -142,7 +142,7 @@ int main() {
                 
 
                 float moveAcceleration = 200.f;  
-                float rotationSpeed = 100.f;
+                float rotationSpeed = 150.f;
 
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) {
                     playerCar->roteste(-rotationSpeed * dTime);

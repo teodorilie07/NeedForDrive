@@ -26,14 +26,8 @@ private:
 public:
     explicit circuit(std::string numeCircuit);
     
-    void setRefillAmount(int val) { refillAmount = val; }
-
-    
-     
     circuit(const circuit& other);
-     
     circuit& operator=(circuit other);
-     
     friend void swap(circuit& first, circuit& second) noexcept;
 
     ~circuit();
@@ -53,4 +47,5 @@ public:
     friend std::ostream& operator<<(std::ostream& os, const circuit& circuit);
 
     bool incarcaFisier(const std::string& cale, sf::Texture& texObs, sf::Texture& texPwr);
+    void setRefillAmount(int val) { refillAmount = val; }
 };

@@ -1,25 +1,28 @@
 #pragma once
 #include "vector.h"
-#include <iostream>
 #include <SFML/Graphics.hpp>
+#include <iostream>
+#include "car.h"
 
-class obstacol
-{
+class obstacol {
 private:
     vector pozitie;
-    const float latime;
-    const float lungime;
-    const float rotatie;
+    float latime;
+    float lungime;
+    float rotatie;
     sf::Sprite m_sprite;
 
 public:
-    obstacol(const vector& poz, float lat, float lung, float rot, sf::Texture& texturaObstacol);
-    ~obstacol();
+    obstacol(const vector& pos, float lat, float lung, float rot, sf::Texture& texturaObstacol);
+    virtual ~obstacol();
+
     const vector& getPozitie() const;
     float getLat() const;
     float getLung() const;
     float getRotatie() const;
-    friend std::ostream& operator<<(std::ostream& os, const obstacol& obs);
-    void draw(sf::RenderWindow& window) const;
 
+    void draw(sf::RenderWindow& window) const;
+    bool verificaColiziune(car& masina) const;
+
+    friend std::ostream& operator<<(std::ostream& os, const obstacol& obs);
 };
