@@ -1,9 +1,14 @@
 #include "menu.h"
+#include "resource_manager.h"
 
 Menu::Menu(float width, float height) : active(false), selectedItem(0), pauseText(font) {
-    if (!font.openFromFile("C:/Windows/Fonts/arial.ttf")) {
-        if (!font.openFromFile("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf")) {
-             std::cerr << "Nu s-a putut incarca fontul!\n";
+    try {
+        font = ResourceManager<sf::Font>::getInstance().get("C:/Windows/Fonts/arial.ttf");
+    } catch (...) {
+        try {
+            font = ResourceManager<sf::Font>::getInstance().get("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf");
+        } catch (...) {
+            std::cerr << "Nu s-a putut incarca fontul!\n";
         }
     }
 
