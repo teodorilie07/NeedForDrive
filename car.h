@@ -20,11 +20,15 @@ private:
     float lungime;
     sf::Sprite m_sprite;
     float immunityTimer;
+    int collectedPowerUps;
 
 public:
     car(const std::string& nume, const vector& poz, int fuelInit, int consumMediu, sf::Texture& texturaMasinii);
     car(const car& other);
     
+    void incrementPowerUps() { collectedPowerUps++; }
+    [[nodiscard]] int getCollectedPowerUps() const { return collectedPowerUps; }
+
     void setMaxFuel(double val);
     double getMaxFuel() const;
 
@@ -48,6 +52,9 @@ public:
     void setPozitie(const vector& pos);
     void setViteza(const vector& vel);
     void setFuel(double valoare);
+    [[nodiscard]] double getFuel() const { return fuel; }
+    [[nodiscard]] int getDamage() const { return damage; }
+    [[nodiscard]] int getDamageMax() const { return damageMax; }
 
     void aplicaDamage(int valoare);
     void adaugaCombustibil(int cantitate);

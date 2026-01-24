@@ -61,7 +61,10 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         decor.cpp
         checkpoint.cpp
         menu.cpp
+        hud.cpp
+        power_up_factory.cpp
         menu.h
+        hud.h
         erori.h
 )
 

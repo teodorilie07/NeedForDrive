@@ -19,7 +19,8 @@ car::car(const std::string& nume, const vector& poz, int combInit, int consum, s
     latime(40.f),
     lungime(70.f),
     m_sprite(texturaMasinii),
-    immunityTimer(0.0f)
+    immunityTimer(0.0f),
+    collectedPowerUps(0)
 {
     if (consum < 0) {
         throw InvalidStatsException(nume, "Consumul nu poate fi negativ!");
@@ -51,7 +52,8 @@ car::car(const car& other):
     latime(other.latime),
     lungime(other.lungime),
     m_sprite(other.m_sprite),    
-    immunityTimer(other.immunityTimer)
+    immunityTimer(other.immunityTimer),
+    collectedPowerUps(other.collectedPowerUps)
 {
     std::cout << "Cpy construct: o copie a "<< nume << " a fost creata.\n";
 }
@@ -74,6 +76,7 @@ car& car::operator=(const car& other)
         this->lungime = other.lungime;
         this->m_sprite = other.m_sprite;
         this->immunityTimer = other.immunityTimer;
+        this->collectedPowerUps = other.collectedPowerUps;
 
          
          

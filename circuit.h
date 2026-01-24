@@ -19,6 +19,7 @@ private:
     std::vector<Decor> decoruri;
     std::vector<std::unique_ptr<PowerUp>> powerUps;
     std::vector<vector> powerUpSpawnPoints;
+    std::vector<std::string> messageLog;
     int refillAmount = 100;
     static int contorCircuite;
 
@@ -39,15 +40,19 @@ public:
     void addCar(const car& masina);
     void addObst(const obstacol& obst);
     void addPowerUp(std::unique_ptr<PowerUp> pwrUp);
-    void regeneratePowerUps(sf::Texture& texPwr);
+    void regeneratePowerUps();
 
-    [[nodiscard]] const std::vector<std::unique_ptr<PowerUp>>& getPowerUps() const;
+    // HUD Communication
+    void logMessage(const std::string& msg);
+    std::vector<std::string> popMessages();
+
     [[nodiscard]] const std::vector<obstacol>& getObstacole() const;
+    [[nodiscard]] const std::vector<std::unique_ptr<PowerUp>>& getPowerUps() const;
     car* getPlayerCar();
 
     void simulat(float dTime);
     friend std::ostream& operator<<(std::ostream& os, const circuit& circuit);
 
-    bool incarcaFisier(const std::string& cale, sf::Texture& texObs, sf::Texture& texPwr);
+    bool incarcaFisier(const std::string& cale);
     void setRefillAmount(int val) { refillAmount = val; }
 };

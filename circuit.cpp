@@ -16,6 +16,8 @@
 #include "motorfix.h"
 #include "erori.h"
 #include "decor.h"
+#include "resource_manager.h"
+#include "power_up_factory.h"
 
 int circuit::contorCircuite = 0;
 
@@ -112,11 +114,15 @@ void circuit::checkPwrUps()
     for (auto& car : cars) {
         for (auto it = powerUps.begin(); it != powerUps.end(); )
         {
-            if (car.getPozitie().distance((*it)->getPozitie()) < 35.0) 
+            // Use template function calculate distance
+            if (getDistance(car, **it) < 35.0) 
             {
                 if (auto* pen = dynamic_cast<PenalizareMotor*>(it->get())) {
-                    std::cout << "[GAME INFO] Atentie! Se apropie o penalizare de motor!\n";
+                    logMessage("Atentie! Penalizare motor!");
                     (void)pen;  
+                } else {
+                    logMessage("PowerUp Colectat!");
+                    car.incrementPowerUps();
                 }
 
                 (*it)->printInfo();
@@ -167,15 +173,16 @@ std::ostream& operator<<(std::ostream& os, const circuit& circuit)
     return os;
 }
 
-bool circuit::incarcaFisier(const std::string& cale, sf::Texture& texObs, sf::Texture& texPwr)
+bool circuit::incarcaFisier(const std::string& cale)
 {
-    (void)texPwr;
-
     std::ifstream fisier(cale);
     if(!fisier.is_open())
     {
         throw FileLoadException(cale);
     }
+
+    sf::Texture& texObs = ResourceManager<sf::Texture>::getInstance().get("assets/obs.png");
+    sf::Texture& texPwr = ResourceManager<sf::Texture>::getInstance().get("assets/PwrUp.png");
 
     std::cout << "Se incarca din fisier...\n";
     char tipObiect;
@@ -212,12 +219,12 @@ bool circuit::incarcaFisier(const std::string& cale, sf::Texture& texObs, sf::Te
                     powerUpSpawnPoints.emplace_back(x, y);
                 } else if (tipPowerUp == 5) {
                     // MotorFix, fix spawn
-                    addPowerUp(std::make_unique<MotorFix>(vector(x, y), texPwr));
+                    addPowerUp(PowerUpFactory::createPowerUp("motorfix", vector(x, y), texPwr));
                 }
             }
         }
     }
-    regeneratePowerUps(texPwr);
+    regeneratePowerUps();
     return true;
 }
 
@@ -237,11 +244,13 @@ car* circuit::getPlayerCar()
     return &cars[0];
 }
 
-void circuit::regeneratePowerUps(sf::Texture& texPwr)
+void circuit::regeneratePowerUps()
 {
     powerUps.clear();
 
     if (powerUpSpawnPoints.empty()) return;
+
+    sf::Texture& texPwr = ResourceManager<sf::Texture>::getInstance().get("assets/PwrUp.png");
 
     std::vector<int> types;
     std::random_device rd;
@@ -257,16 +266,26 @@ void circuit::regeneratePowerUps(sf::Texture& texPwr)
         vector pos = powerUpSpawnPoints[i];
         
         if (std::abs(pos.getx() - 640.f) < 1.0f && std::abs(pos.gety() - 575.f) < 1.0f) {
-             addPowerUp(std::make_unique<MotorFix>(pos, texPwr));
+             addPowerUp(PowerUpFactory::createPowerUp("motorfix", pos, texPwr));
         } else {
             int type = types[i];
             switch (type) {
-                case 1: addPowerUp(std::make_unique<KitReparatie>(pos, texPwr)); break;
-                case 2: addPowerUp(std::make_unique<BoostNitro>(pos, texPwr)); break;
-                case 3: addPowerUp(std::make_unique<RefillCombustibil>(pos, texPwr, refillAmount)); break;
-                case 4: addPowerUp(std::make_unique<PenalizareMotor>(pos, texPwr)); break;
+                case 1: addPowerUp(PowerUpFactory::createPowerUp("kit", pos, texPwr)); break;
+                case 2: addPowerUp(PowerUpFactory::createPowerUp("boost", pos, texPwr)); break;
+                case 3: addPowerUp(PowerUpFactory::createPowerUp("refill", pos, texPwr, refillAmount)); break;
+                case 4: addPowerUp(PowerUpFactory::createPowerUp("penalizare", pos, texPwr)); break;
             }
         }
     }
     std::cout << "[INFO] PowerUps regenerate.\n";
+}
+
+void circuit::logMessage(const std::string& msg) {
+    messageLog.push_back(msg);
+}
+
+std::vector<std::string> circuit::popMessages() {
+    std::vector<std::string> temp = std::move(messageLog);
+    messageLog.clear();
+    return temp;
 }
