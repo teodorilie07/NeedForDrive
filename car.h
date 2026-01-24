@@ -56,9 +56,10 @@ public:
     [[nodiscard]] int getDamage() const { return damage; }
     [[nodiscard]] int getDamageMax() const { return damageMax; }
 
-    void aplicaDamage(int valoare);
-    void adaugaCombustibil(int cantitate);
-    void penalizareMotor(float penalizare);
+    void modifyDamage(int valoare);
+    void modifyFuel(double cantitate);
+    void modifyPerformance(float factor);
+    
     void onCollision();
 
     void activeazaImunitate(float secunde);

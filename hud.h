@@ -8,22 +8,22 @@ class HUD {
 private:
     sf::Font font;
     
-    // Fuel Bar
+     
     sf::RectangleShape fuelFrame;
     sf::RectangleShape fuelFill;
     sf::Text fuelLabel;
 
-    // Stats
+     
     sf::Text speedText;
     sf::Text damageText;
     sf::Text lapText;
 
-    // Message Log
+     
     sf::Text logText;
     std::string currentMessage;
     float messageTimer;
 
-    // Game Over UI
+     
     sf::RectangleShape gameOverOverlay;
     sf::Text gameOverText;
     sf::Text statsText;

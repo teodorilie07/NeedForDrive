@@ -47,7 +47,7 @@ public:
     }
 };
 
-// Template function to calculate distance between two objects that have getPozitie()
+ 
 template <typename T, typename U>
 float getDistance(const T& obj1, const U& obj2) {
     vector p1 = obj1.getPozitie();

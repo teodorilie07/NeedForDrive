@@ -7,7 +7,7 @@ KitReparatie::KitReparatie(const vector& poz, sf::Texture& texturaPowerUp)
 void KitReparatie::aplicaEfect(car& masina) 
 {
     std::cout << "[POWER-UP] " << masina.getNume() << " a colectat un kit de reparatie\n";
-    masina.aplicaDamage(-1);
+    masina.modifyDamage(-1);
 }
 
 std::unique_ptr<PowerUp> KitReparatie::clone() const 

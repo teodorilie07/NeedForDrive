@@ -42,7 +42,7 @@ public:
     void addPowerUp(std::unique_ptr<PowerUp> pwrUp);
     void regeneratePowerUps();
 
-    // HUD Communication
+     
     void logMessage(const std::string& msg);
     std::vector<std::string> popMessages();
 
@@ -53,6 +53,6 @@ public:
     void simulat(float dTime);
     friend std::ostream& operator<<(std::ostream& os, const circuit& circuit);
 
-    bool incarcaFisier(const std::string& cale);
+    void incarcaFisier(const std::string& cale);
     void setRefillAmount(int val) { refillAmount = val; }
 };

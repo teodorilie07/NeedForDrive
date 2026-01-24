@@ -7,7 +7,7 @@ PenalizareMotor::PenalizareMotor(const vector& poz, sf::Texture& texturaPowerUp)
 void PenalizareMotor::aplicaEfect(car& masina) 
 {
     std::cout << "[POWER-UP] " << masina.getNume() << " a colectat o capcana de motor!\n";
-    masina.penalizareMotor(0.2f);
+    masina.modifyPerformance(-0.2f);
 }
 
 std::unique_ptr<PowerUp> PenalizareMotor::clone() const 

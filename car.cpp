@@ -166,7 +166,7 @@ std::ostream& operator<<(std::ostream& os, const car& car)
     return os;
 }
 
-void car::aplicaDamage(int valoare)
+void car::modifyDamage(int valoare)
 {
     this->damage += valoare;
     if(this->damage > this->damageMax) this->damage = this->damageMax;
@@ -174,25 +174,27 @@ void car::aplicaDamage(int valoare)
 
     if (valoare > 0)
         std::cout << "[INFO] " << this->nume << " a lovit ceva! Damage: " << this->damage << "/" << this->damageMax << "\n";
-    else
+    else if (valoare < 0)
         std::cout << "[INFO] " << this->nume << " a fost reparata. Damage: " << this->damage << "/" << this->damageMax << "\n";
 }
 
 bool car::eliminata() const { return this->damage >= this->damageMax; }
 
-void car::adaugaCombustibil(int cantitate)
+void car::modifyFuel(double cantitate)
 {
     fuel += cantitate;
     if (fuel > maxFuel) fuel = maxFuel;
+    if (fuel < 0) fuel = 0;
 }
 
 void car::setMaxFuel(double val) { maxFuel = val; }
 double car::getMaxFuel() const { return maxFuel; }
 
-void car::penalizareMotor(float penalizare)
+void car::modifyPerformance(float delta)
 {
-    performanta -= penalizare;
+    performanta += delta;
     if (performanta < 0.2f) performanta = 0.2f;
+    if (performanta > 3.0f) performanta = 3.0f;
 }
 
 void car::roteste(float grade) { this->unghi += grade; }
@@ -222,7 +224,7 @@ sf::FloatRect car::getGlobalBounds() const {
 void car::onCollision()
 {
     if (!esteImuna()) {
-        aplicaDamage(1);
+        modifyDamage(1);
     }
 }
 

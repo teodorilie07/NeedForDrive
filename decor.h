@@ -11,6 +11,6 @@ private:
 public:
     explicit Decor(const std::vector<vector>& puncte);
     
-    // Nu desenam nimic, dar verificam interactiunea
+     
     void verificaSiAplica(car& masina) const;
 };

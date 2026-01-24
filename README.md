@@ -6,7 +6,7 @@ Proiectul este un joc de curse 2D, tip top-down, dezvoltat de la zero în C++ fo
 
 Obiectivul jucătorului este să finalizeze un număr de ture pe un circuit, însă mecanica centrală a jocului este managementul combustibilului. Jucătorul trebuie să își dozeze constant accelerația, deoarece vehiculul consumă combustibil la fiecare mișcare. Rămânerea fără combustibil înainte de terminarea cursei rezultă în pierderea jocului. 
 
-Controlul mașinii se realizează prin tastele W (accelerație), A (rotatie stânga), S (frână/marșarier) și D (rotatie dreapta), iar jocul include o fizică de bază pentru inerție și coliziuni. 
+Controlul mașinii se realizează prin tastele W (accelerație), A (rotatie stânga), S (frână/marșarier) și D (rotatie dreapta), esc (meniu), iar jocul include o fizică de bază pentru inerție și coliziuni. 
 
 Circuitul este presărat cu obstacole pe care jucătorul trebuie să le evite , coliziunile provocând încetinirea, posibile daune si daca daunele sunt prea multe, pierderea jocului. Pentru a sprijini jucătorul, pe hartă apar diverse power-up-uri: 
    -Umplerea Combustibilului

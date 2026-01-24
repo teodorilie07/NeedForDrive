@@ -34,7 +34,7 @@ circuit::circuit(const circuit& other)
       powerUpSpawnPoints(other.powerUpSpawnPoints),
       refillAmount(other.refillAmount)
 {
-    // Deep copy powerups
+     
     for (const auto& ptr : other.powerUps) {
         if (ptr) {
             powerUps.push_back(ptr->clone());
@@ -93,7 +93,7 @@ void circuit::gestioneazaColiziuni()
     {
         if (masina.eliminata()) continue;
 
-        // Obstacole solide
+         
         for (const auto& obs : obstacole)
         {
             if (obs.verificaColiziune(masina)) {
@@ -101,7 +101,7 @@ void circuit::gestioneazaColiziuni()
             }
         }
 
-        // Decoruri (incetinire)
+         
         for (const auto& dec : decoruri)
         {
             dec.verificaSiAplica(masina);
@@ -114,7 +114,7 @@ void circuit::checkPwrUps()
     for (auto& car : cars) {
         for (auto it = powerUps.begin(); it != powerUps.end(); )
         {
-            // Use template function calculate distance
+             
             if (getDistance(car, **it) < 35.0) 
             {
                 if (auto* pen = dynamic_cast<PenalizareMotor*>(it->get())) {
@@ -173,7 +173,7 @@ std::ostream& operator<<(std::ostream& os, const circuit& circuit)
     return os;
 }
 
-bool circuit::incarcaFisier(const std::string& cale)
+void circuit::incarcaFisier(const std::string& cale)
 {
     std::ifstream fisier(cale);
     if(!fisier.is_open())
@@ -218,14 +218,13 @@ bool circuit::incarcaFisier(const std::string& cale)
                 if (tipPowerUp == 0) {
                     powerUpSpawnPoints.emplace_back(x, y);
                 } else if (tipPowerUp == 5) {
-                    // MotorFix, fix spawn
+                     
                     addPowerUp(PowerUpFactory::createPowerUp("motorfix", vector(x, y), texPwr));
                 }
             }
         }
     }
     regeneratePowerUps();
-    return true;
 }
 
 const std::vector<obstacol>& circuit::getObstacole() const
@@ -269,12 +268,15 @@ void circuit::regeneratePowerUps()
              addPowerUp(PowerUpFactory::createPowerUp("motorfix", pos, texPwr));
         } else {
             int type = types[i];
+            std::string typeStr;
             switch (type) {
-                case 1: addPowerUp(PowerUpFactory::createPowerUp("kit", pos, texPwr)); break;
-                case 2: addPowerUp(PowerUpFactory::createPowerUp("boost", pos, texPwr)); break;
-                case 3: addPowerUp(PowerUpFactory::createPowerUp("refill", pos, texPwr, refillAmount)); break;
-                case 4: addPowerUp(PowerUpFactory::createPowerUp("penalizare", pos, texPwr)); break;
+                case 1: typeStr = "kit"; break;
+                case 2: typeStr = "boost"; break;
+                case 3: typeStr = "refill"; break;
+                case 4: typeStr = "penalizare"; break;
+                default: typeStr = "kit"; break;
             }
+            addPowerUp(PowerUpFactory::createPowerUp(typeStr, pos, texPwr, refillAmount));
         }
     }
     std::cout << "[INFO] PowerUps regenerate.\n";

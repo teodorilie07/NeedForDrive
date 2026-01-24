@@ -63,8 +63,10 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         menu.cpp
         hud.cpp
         power_up_factory.cpp
+        game.cpp
         menu.h
         hud.h
+        game.h
         erori.h
 )
 
