@@ -43,12 +43,12 @@ public:
     void regeneratePowerUps();
 
      
+     
     void logMessage(const std::string& msg);
     std::vector<std::string> popMessages();
 
     [[nodiscard]] const std::vector<obstacol>& getObstacole() const;
     [[nodiscard]] const std::vector<std::unique_ptr<PowerUp>>& getPowerUps() const;
-    car* getPlayerCar();  
     car* getCar(int index);
 
     void simulat(float dTime);

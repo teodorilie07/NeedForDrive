@@ -2,9 +2,9 @@
 #include "resource_manager.h"
 
 Menu::Menu(float width, float height) 
-    : currentState(MenuState::MainMenu), selectedItem(0), width(width), height(height),
+    : currentState(MenuState::MainMenu), selectedItem(0),
       font(ResourceManager<sf::Font>::getInstance().get("C:/Windows/Fonts/arial.ttf")),
-      titleText(font)
+      titleText(font), width(width), height(height)
 {
     overlay.setSize({width, height});
     overlay.setFillColor(sf::Color(0, 0, 0, 200));
@@ -53,7 +53,7 @@ void Menu::draw(sf::RenderWindow& window) {
     titleText.setPosition({width / 2.0f, height / 5.0f});
     window.draw(titleText);
 
-    std::vector<sf::Text>* currentItems = nullptr;
+    const std::vector<sf::Text>* currentItems = nullptr;
     if (currentState == MenuState::MainMenu) currentItems = &mainMenuItems;
     else if (currentState == MenuState::SPLaps) currentItems = &spLapsItems;
     else if (currentState == MenuState::MPLaps) currentItems = &mpLapsItems;

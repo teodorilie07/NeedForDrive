@@ -13,13 +13,6 @@ CheckpointManager::CheckpointManager()
     m_currentLap[1] = 0;
 }
 
-void CheckpointManager::reset() {
-    m_nextCheckpointIndex[0] = 0;
-    m_nextCheckpointIndex[1] = 0;
-    m_currentLap[0] = 0;
-    m_currentLap[1] = 0;
-}
-
 void CheckpointManager::loadFromFile(const std::string& filename) {
     std::ifstream file(filename);
     if (!file.is_open()) {
@@ -35,18 +28,13 @@ void CheckpointManager::loadFromFile(const std::string& filename) {
             if (file >> x >> y >> rot) {
                 Checkpoint cp;
                 cp.isFinishLine = (type == 'F');
-                
-                 
                 cp.shape.setSize({120.f, 15.f});
                 cp.shape.setOrigin({60.f, 7.5f});
                 cp.shape.setPosition({x, y});
-                 
                 cp.shape.setRotation(sf::degrees(rot));
-
                 m_checkpoints.push_back(cp);
             }
         } else {
-             
             std::string dummy;
             std::getline(file, dummy);
         }
@@ -59,16 +47,12 @@ void CheckpointManager::update(const car& playerCar, int playerIndex) {
     if (m_checkpoints.empty()) return;
     if (playerIndex < 0 || playerIndex > 1) return;
 
-     
     if (m_checkpoints[m_nextCheckpointIndex[playerIndex]].shape.getGlobalBounds().findIntersection(playerCar.getGlobalBounds())) {
-        
         bool wasFinishLine = m_checkpoints[m_nextCheckpointIndex[playerIndex]].isFinishLine;
-
         m_nextCheckpointIndex[playerIndex]++;
         if (m_nextCheckpointIndex[playerIndex] >= static_cast<int>(m_checkpoints.size())) {
             m_nextCheckpointIndex[playerIndex] = 0;
         }
-
         if (wasFinishLine) {
             m_currentLap[playerIndex]++;
             std::cout << "Jucator " << playerIndex + 1 << ": Tura " << m_currentLap[playerIndex] << " completata!\n";
@@ -79,11 +63,10 @@ void CheckpointManager::update(const car& playerCar, int playerIndex) {
 void CheckpointManager::draw(sf::RenderWindow& window, int focusedPlayerIndex) const {
     if (m_checkpoints.empty()) return;
 
-    if (focusedPlayerIndex != -1 && focusedPlayerIndex >= 0 && focusedPlayerIndex < 2) {
+    if (focusedPlayerIndex >= 0 && focusedPlayerIndex < 2) {
         int nextIdx = m_nextCheckpointIndex[focusedPlayerIndex];
         for (size_t i = 0; i < m_checkpoints.size(); ++i) {
             size_t dist = (i - nextIdx + m_checkpoints.size()) % m_checkpoints.size();
-            
             if (dist == 0) { 
                 m_checkpoints[i].shape.setFillColor(m_checkpoints[i].isFinishLine ? sf::Color::Red : sf::Color::Yellow);
                 window.draw(m_checkpoints[i].shape);
@@ -115,15 +98,10 @@ int CheckpointManager::getNextCheckpointIndex(int playerIndex) const {
 
 float CheckpointManager::getCircuitLength() const {
     if (m_checkpoints.size() < 2) return 0.0f;
-
     float totalDistance = 0.0f;
     for (size_t i = 0; i < m_checkpoints.size(); ++i) {
-         
         sf::Vector2f p1 = m_checkpoints[i].shape.getPosition();
-         
         sf::Vector2f p2 = m_checkpoints[(i + 1) % m_checkpoints.size()].shape.getPosition();
-
-         
         float dx = p2.x - p1.x;
         float dy = p2.y - p1.y;
         totalDistance += std::sqrt(dx * dx + dy * dy);

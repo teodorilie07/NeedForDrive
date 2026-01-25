@@ -23,5 +23,4 @@ public:
     int getLaps(int playerIndex) const;
     int getNextCheckpointIndex(int playerIndex) const;
     float getCircuitLength() const;
-    void reset();
 };

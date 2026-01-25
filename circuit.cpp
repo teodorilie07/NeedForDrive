@@ -237,12 +237,6 @@ const std::vector<std::unique_ptr<PowerUp>>& circuit::getPowerUps() const
     return powerUps;
 }
 
-car* circuit::getPlayerCar()
-{
-    if (cars.empty()) return nullptr;
-    return &cars[0];
-}
-
 car* circuit::getCar(int index) {
     if (index < 0 || index >= static_cast<int>(cars.size())) return nullptr;
     return &cars[index];
