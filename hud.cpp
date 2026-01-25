@@ -14,7 +14,10 @@ HUD::HUD(float screenWidth, float screenHeight) :
     messageTimer(0.0f),
     gameOverText(font, "GAME OVER", 50),
     statsText(font),
-    restartText(font, "Press R to Restart or Q to Quit", 25)
+    restartText(font, "Press R to Restart or Q to Quit", 25),
+    isMultiplayerMode(false),
+    leaderboardLines{ sf::Text(font), sf::Text(font) },
+    damageBoardLines{ sf::Text(font), sf::Text(font) }
 {
      
     fuelFrame.setSize({200.f, 20.f});
@@ -65,9 +68,33 @@ HUD::HUD(float screenWidth, float screenHeight) :
     sf::FloatRect rBounds = restartText.getLocalBounds();
     restartText.setOrigin({rBounds.size.x / 2.f, rBounds.size.y / 2.f});
     restartText.setPosition({screenWidth / 2.f, screenHeight * 0.75f});
+
+     
+    leaderboardBg.setSize({180.f, 60.f});
+    leaderboardBg.setFillColor(sf::Color(0, 0, 0, 150));
+    leaderboardBg.setOutlineColor(sf::Color::White);
+    leaderboardBg.setOutlineThickness(2.f);
+    leaderboardBg.setPosition({screenWidth - 200.f, screenHeight - 140.f});  
+
+    leaderboardLines[0].setCharacterSize(18);
+    leaderboardLines[1].setCharacterSize(18);
+
+     
+    damageBoardBg.setSize({180.f, 60.f});
+    damageBoardBg.setFillColor(sf::Color(0, 0, 0, 150));
+    damageBoardBg.setOutlineColor(sf::Color::Red);
+    damageBoardBg.setOutlineThickness(2.f);
+    damageBoardBg.setPosition({screenWidth - 200.f, screenHeight - 70.f});  
+
+    damageBoardLines[0].setCharacterSize(18);
+    damageBoardLines[1].setCharacterSize(18);
 }
 
-void HUD::update(const car& playerCar, float dTime, int currentLap) {
+void HUD::setMultiplayerMode(bool enabled) {
+    isMultiplayerMode = enabled;
+}
+
+void HUD::update(const car& playerCar, float dTime, int currentLapP1, int currentLapP2, int cpIndexP1, int cpIndexP2, int damageP2) {
      
     double maxFuel = playerCar.getMaxFuel();
     double currentFuel = playerCar.getFuel();
@@ -91,22 +118,71 @@ void HUD::update(const car& playerCar, float dTime, int currentLap) {
      
     vector vel = playerCar.getViteza();
     float speedPx = std::sqrt(vel.getx() * vel.getx() + vel.gety() * vel.gety());
-    float speedKmh = speedPx * 0.36f;  
+    float speedKmh = speedPx * 0.36f; 
     std::stringstream ssSpeed;
     ssSpeed << "Speed: " << std::fixed << std::setprecision(0) << speedKmh << " km/h";
     speedText.setString(ssSpeed.str());
     
-     
-    std::stringstream ssLap;
-    ssLap << "Laps: " << currentLap;
-    lapText.setString(ssLap.str());
+    int dmgP1 = playerCar.getDamage();
+    int maxDmg = playerCar.getDamageMax();  
 
      
-    int dmg = playerCar.getDamage();
-    int maxDmg = playerCar.getDamageMax();
-    std::stringstream ssDmg;
-    ssDmg << "Damage: " << dmg << " / " << maxDmg;
-    damageText.setString(ssDmg.str());
+    if (!isMultiplayerMode) {
+        std::stringstream ssLap;
+        ssLap << "Laps: " << currentLapP1;
+        lapText.setString(ssLap.str());
+
+        std::stringstream ssDmg;
+        ssDmg << "Damage: " << dmgP1 << " / " << maxDmg;
+        damageText.setString(ssDmg.str());
+    } else {
+         
+        bool p1Ahead = false;
+        if (currentLapP1 > currentLapP2) p1Ahead = true;
+        else if (currentLapP1 < currentLapP2) p1Ahead = false;
+        else { 
+            if (cpIndexP1 >= cpIndexP2) p1Ahead = true;
+            else p1Ahead = false;
+        }
+
+        std::stringstream ss1, ss2;
+        sf::Color col1 = sf::Color::White;
+        sf::Color col2 = sf::Color(100, 100, 255); 
+
+        if (p1Ahead) {
+            ss1 << "1. P1 (Lap " << currentLapP1 << ")";
+            ss2 << "2. P2 (Lap " << currentLapP2 << ")";
+            leaderboardLines[0].setString(ss1.str());
+            leaderboardLines[0].setFillColor(col1);
+            
+            leaderboardLines[1].setString(ss2.str());
+            leaderboardLines[1].setFillColor(col2);
+        } else {
+            ss1 << "1. P2 (Lap " << currentLapP2 << ")";
+            ss2 << "2. P1 (Lap " << currentLapP1 << ")";
+            leaderboardLines[0].setString(ss1.str());
+            leaderboardLines[0].setFillColor(col2);
+            
+            leaderboardLines[1].setString(ss2.str());
+            leaderboardLines[1].setFillColor(col1);
+        }
+        
+        leaderboardLines[0].setPosition({leaderboardBg.getPosition().x + 10.f, leaderboardBg.getPosition().y + 5.f});
+        leaderboardLines[1].setPosition({leaderboardBg.getPosition().x + 10.f, leaderboardBg.getPosition().y + 30.f});
+
+         
+        std::stringstream dss1, dss2;
+        dss1 << "P1 HP: " << (maxDmg - dmgP1);
+        dss2 << "P2 HP: " << (maxDmg - damageP2);
+        
+        damageBoardLines[0].setString(dss1.str());
+        damageBoardLines[0].setFillColor(col1);
+        damageBoardLines[0].setPosition({damageBoardBg.getPosition().x + 10.f, damageBoardBg.getPosition().y + 5.f});
+
+        damageBoardLines[1].setString(dss2.str());
+        damageBoardLines[1].setFillColor(col2);
+        damageBoardLines[1].setPosition({damageBoardBg.getPosition().x + 10.f, damageBoardBg.getPosition().y + 30.f});
+    }
 
      
     if (messageTimer > 0.f) {
@@ -129,20 +205,37 @@ void HUD::draw(sf::RenderWindow& window) {
     window.draw(fuelLabel);
     
     window.draw(speedText);
-    window.draw(lapText);
-    window.draw(damageText);
+    
+    if (!isMultiplayerMode) {
+        window.draw(lapText);
+        window.draw(damageText);
+    } else {
+        window.draw(leaderboardBg);
+        window.draw(leaderboardLines[0]);
+        window.draw(leaderboardLines[1]);
+
+        window.draw(damageBoardBg);
+        window.draw(damageBoardLines[0]);
+        window.draw(damageBoardLines[1]);
+    }
     
     if (messageTimer > 0.f) {
         window.draw(logText);
     }
 }
 
-void HUD::drawGameOver(sf::RenderWindow& window, int collectedPowerUps, int finalLaps) {
+void HUD::drawGameOver(sf::RenderWindow& window, int collectedPowerUps, int finalLaps, const std::string& winnerName) {
     window.draw(gameOverOverlay);
     window.draw(gameOverText);
 
     std::stringstream ss;
-    ss << "Laps Completed: " << finalLaps << "\nPower-Ups Collected: " << collectedPowerUps;
+    if (!winnerName.empty()) {
+        ss << "WINNER: " << winnerName << "\n\n";
+    }
+    
+    if (!isMultiplayerMode) {
+        ss << "Laps Completed: " << finalLaps << "\nPower-Ups Collected: " << collectedPowerUps;
+    }
     statsText.setString(ss.str());
     
     sf::FloatRect bounds = statsText.getLocalBounds();

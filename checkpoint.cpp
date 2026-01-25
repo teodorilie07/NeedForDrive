@@ -6,8 +6,18 @@
 #include "erori.h"
 
 CheckpointManager::CheckpointManager()
-    : m_nextCheckpointIndex(0), m_currentLap(0)
 {
+    m_nextCheckpointIndex[0] = 0;
+    m_nextCheckpointIndex[1] = 0;
+    m_currentLap[0] = 0;
+    m_currentLap[1] = 0;
+}
+
+void CheckpointManager::reset() {
+    m_nextCheckpointIndex[0] = 0;
+    m_nextCheckpointIndex[1] = 0;
+    m_currentLap[0] = 0;
+    m_currentLap[1] = 0;
 }
 
 void CheckpointManager::loadFromFile(const std::string& filename) {
@@ -45,56 +55,62 @@ void CheckpointManager::loadFromFile(const std::string& filename) {
     std::cout << "S-au incarcat " << m_checkpoints.size() << " checkpoint-uri.\n";
 }
 
-void CheckpointManager::update(const car& playerCar) {
+void CheckpointManager::update(const car& playerCar, int playerIndex) {
     if (m_checkpoints.empty()) return;
+    if (playerIndex < 0 || playerIndex > 1) return;
 
      
-    if (m_checkpoints[m_nextCheckpointIndex].shape.getGlobalBounds().findIntersection(playerCar.getGlobalBounds())) {
-        std::cout << "Checkpoint " << m_nextCheckpointIndex << " atins!\n";
+    if (m_checkpoints[m_nextCheckpointIndex[playerIndex]].shape.getGlobalBounds().findIntersection(playerCar.getGlobalBounds())) {
         
-        bool wasFinishLine = m_checkpoints[m_nextCheckpointIndex].isFinishLine;
+        bool wasFinishLine = m_checkpoints[m_nextCheckpointIndex[playerIndex]].isFinishLine;
 
-        m_nextCheckpointIndex++;
-        if (m_nextCheckpointIndex >= static_cast<int>(m_checkpoints.size())) {
-            m_nextCheckpointIndex = 0;
+        m_nextCheckpointIndex[playerIndex]++;
+        if (m_nextCheckpointIndex[playerIndex] >= static_cast<int>(m_checkpoints.size())) {
+            m_nextCheckpointIndex[playerIndex] = 0;
         }
 
         if (wasFinishLine) {
-            m_currentLap++;
-            std::cout << "Tura " << getLaps() << " completata! (Finish Line trecut)\n";
+            m_currentLap[playerIndex]++;
+            std::cout << "Jucator " << playerIndex + 1 << ": Tura " << m_currentLap[playerIndex] << " completata!\n";
         }
     }
 }
 
-void CheckpointManager::draw(sf::RenderWindow& window) const {
+void CheckpointManager::draw(sf::RenderWindow& window, int focusedPlayerIndex) const {
     if (m_checkpoints.empty()) return;
 
-    for (size_t i = 0; i < m_checkpoints.size(); ++i) {
-        size_t dist = (i - m_nextCheckpointIndex + m_checkpoints.size()) % m_checkpoints.size();
-
-        bool isVisible = false;
-         
-        std::uint8_t alpha = 0;
-
-        if (dist == 0) {
-            alpha = 255;
-            isVisible = true;
-        } else if (dist <= 3) {
-            alpha = 80; 
-            isVisible = true;
+    if (focusedPlayerIndex != -1 && focusedPlayerIndex >= 0 && focusedPlayerIndex < 2) {
+        int nextIdx = m_nextCheckpointIndex[focusedPlayerIndex];
+        for (size_t i = 0; i < m_checkpoints.size(); ++i) {
+            size_t dist = (i - nextIdx + m_checkpoints.size()) % m_checkpoints.size();
+            
+            if (dist == 0) { 
+                m_checkpoints[i].shape.setFillColor(m_checkpoints[i].isFinishLine ? sf::Color::Red : sf::Color::Yellow);
+                window.draw(m_checkpoints[i].shape);
+            } else if (dist <= 2) { 
+                 sf::Color col = m_checkpoints[i].isFinishLine ? sf::Color::Red : sf::Color::Yellow;
+                 col.a = 80;
+                 m_checkpoints[i].shape.setFillColor(col);
+                 window.draw(m_checkpoints[i].shape);
+            }
         }
-
-        if (isVisible) {
-            sf::Color col = m_checkpoints[i].isFinishLine ? sf::Color::Red : sf::Color::Yellow;
-            col.a = alpha;
+    } else {
+        for (size_t i = 0; i < m_checkpoints.size(); ++i) {
+            sf::Color col = m_checkpoints[i].isFinishLine ? sf::Color::Red : sf::Color(255, 255, 0, 50);
             m_checkpoints[i].shape.setFillColor(col);
             window.draw(m_checkpoints[i].shape);
         }
     }
 }
 
-int CheckpointManager::getLaps() const {
-    return m_currentLap;
+int CheckpointManager::getLaps(int playerIndex) const {
+    if (playerIndex < 0 || playerIndex > 1) return 0;
+    return m_currentLap[playerIndex];
+}
+
+int CheckpointManager::getNextCheckpointIndex(int playerIndex) const {
+    if (playerIndex < 0 || playerIndex > 1) return 0;
+    return m_nextCheckpointIndex[playerIndex];
 }
 
 float CheckpointManager::getCircuitLength() const {

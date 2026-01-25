@@ -59,11 +59,14 @@ public:
     void modifyDamage(int valoare);
     void modifyFuel(double cantitate);
     void modifyPerformance(float factor);
+    void resetPerformance();
     
     void onCollision();
 
     void activeazaImunitate(float secunde);
     bool esteImuna() const;
+
+    void setColor(const sf::Color& color);
 
     sf::FloatRect getGlobalBounds() const;
 

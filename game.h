@@ -20,14 +20,17 @@ private:
     Menu menu;
 
     bool isGameOver;
-    int lastLap;
-    int cachedPowerUps;
-    int cachedLaps;
+    bool isMultiplayer;
+    int targetLaps;
+    int lastLap[2];  
+    int cachedPowerUps[2];
+    int cachedLaps[2];
+    std::string winnerName;
 
     void processEvents();
     void update(float dTime);
     void render();
-    void resetGame();
+    void resetGame(bool multiplayer, int laps);
 
 public:
     Game();

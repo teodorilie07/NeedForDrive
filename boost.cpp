@@ -6,7 +6,7 @@ BoostNitro::BoostNitro(const vector& poz, sf::Texture& texturaPowerUp)
 
 void BoostNitro::aplicaEfect(car& masina)
 {
-    masina.acceleratie(25.0f);
+    masina.modifyPerformance(0.4f);
 }
 
 std::unique_ptr<PowerUp> BoostNitro::clone() const 
@@ -16,5 +16,5 @@ std::unique_ptr<PowerUp> BoostNitro::clone() const
 
 void BoostNitro::doPrint() const
 {
-    std::cout << "NITRO BOOST (Viteza++) la pozitia " << getPozitie();
+    std::cout << "NITRO BOOST (Perf++) la pozitia " << getPozitie();
 }

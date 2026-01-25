@@ -48,7 +48,8 @@ public:
 
     [[nodiscard]] const std::vector<obstacol>& getObstacole() const;
     [[nodiscard]] const std::vector<std::unique_ptr<PowerUp>>& getPowerUps() const;
-    car* getPlayerCar();
+    car* getPlayerCar();  
+    car* getCar(int index);
 
     void simulat(float dTime);
     friend std::ostream& operator<<(std::ostream& os, const circuit& circuit);

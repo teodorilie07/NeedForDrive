@@ -243,6 +243,11 @@ car* circuit::getPlayerCar()
     return &cars[0];
 }
 
+car* circuit::getCar(int index) {
+    if (index < 0 || index >= static_cast<int>(cars.size())) return nullptr;
+    return &cars[index];
+}
+
 void circuit::regeneratePowerUps()
 {
     powerUps.clear();

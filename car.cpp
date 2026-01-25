@@ -91,6 +91,12 @@ car::~car()
 
 void car::uptState(float dTime)
 {
+     
+    if (fuel > 0) {
+        fuel -= consum * 0.05 * dTime; 
+        if (fuel < 0) fuel = 0;
+    }
+
     pozitie = vector(
             pozitie.getx() + viteza.getx() * dTime,
             pozitie.gety() + viteza.gety() * dTime
@@ -132,7 +138,14 @@ void car::acceleratie(float forta)
             viteza.gety() + directie.gety() * fortaAplicata
         );
 
-        fuel = fuel - consum * 0.2;
+        fuel = fuel - consum * 0.2;  
+         
+         
+         
+         
+         
+         
+        
         if (fuel < 0) fuel = 0;
     }
     else
@@ -197,6 +210,11 @@ void car::modifyPerformance(float delta)
     if (performanta > 3.0f) performanta = 3.0f;
 }
 
+void car::resetPerformance()
+{
+    performanta = 1.0f;
+}
+
 void car::roteste(float grade) { this->unghi += grade; }
 float car::getUnghi() const { return this->unghi; }
 
@@ -215,6 +233,10 @@ void car::activeazaImunitate(float secunde) {
 
 bool car::esteImuna() const {
     return immunityTimer > 0.0f;
+}
+
+void car::setColor(const sf::Color& color) {
+    m_sprite.setColor(color);
 }
 
 sf::FloatRect car::getGlobalBounds() const {

@@ -7,7 +7,7 @@ MotorFix::MotorFix(const vector& poz, sf::Texture& texturaPowerUp)
 void MotorFix::aplicaEfect(car& masina) 
 {
     std::cout << "[POWER-UP] " << masina.getNume() << " a colectat o reparatie de motor! Performanta restaurata.\n";
-    masina.modifyPerformance(1.0f); 
+    masina.resetPerformance(); 
 }
 
 std::unique_ptr<PowerUp> MotorFix::clone() const 

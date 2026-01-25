@@ -1,70 +1,107 @@
 #include "menu.h"
 #include "resource_manager.h"
 
-Menu::Menu(float width, float height) : active(false), selectedItem(0), pauseText(font) {
-    try {
-        font = ResourceManager<sf::Font>::getInstance().get("C:/Windows/Fonts/arial.ttf");
-    } catch (...) {
-        try {
-            font = ResourceManager<sf::Font>::getInstance().get("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf");
-        } catch (...) {
-            std::cerr << "Nu s-a putut incarca fontul!\n";
+Menu::Menu(float width, float height) 
+    : currentState(MenuState::MainMenu), selectedItem(0), width(width), height(height),
+      font(ResourceManager<sf::Font>::getInstance().get("C:/Windows/Fonts/arial.ttf")),
+      titleText(font)
+{
+    overlay.setSize({width, height});
+    overlay.setFillColor(sf::Color(0, 0, 0, 200));
+
+    titleText.setCharacterSize(60);
+    titleText.setFillColor(sf::Color::Cyan);
+    titleText.setStyle(sf::Text::Bold);
+    titleText.setPosition({width / 2.0f, height / 5.0f});
+
+    auto initMenu = [&](std::vector<sf::Text>& items, const std::vector<std::string>& labels) {
+        for (size_t i = 0; i < labels.size(); ++i) {
+            sf::Text text(font, labels[i], 40);
+            text.setFillColor(i == 0 ? sf::Color::Red : sf::Color::White);
+            sf::FloatRect bounds = text.getLocalBounds();
+            text.setOrigin({bounds.size.x / 2.0f, bounds.size.y / 2.0f});
+            text.setPosition({width / 2.0f, height / 2.0f + i * 60.0f});
+            items.push_back(text);
         }
-    }
+    };
 
-    overlay.setSize(sf::Vector2f(width, height));
-    overlay.setFillColor(sf::Color(0, 0, 0, 150));
+    initMenu(mainMenuItems, {"Singleplayer", "Multiplayer", "Exit"});
+    initMenu(spLapsItems, {"Infinite", "4 Laps", "6 Laps", "10 Laps", "Back"});
+    initMenu(mpLapsItems, {"2 Laps", "4 Laps", "8 Laps", "10 Laps", "Back"});
+    initMenu(pauseMenuItems, {"Resume", "Restart", "Main Menu"});
+}
 
-    pauseText.setString("PAUSE");
-    pauseText.setCharacterSize(60);
-    pauseText.setFillColor(sf::Color::White);
-    pauseText.setStyle(sf::Text::Bold);
-    
-    sf::FloatRect textRect = pauseText.getLocalBounds();
-    pauseText.setOrigin(sf::Vector2f(textRect.position.x + textRect.size.x / 2.0f, textRect.position.y + textRect.size.y / 2.0f));
-    pauseText.setPosition(sf::Vector2f(width / 2.0f, height / 4.0f));
-
-    std::vector<std::string> options = {"Resume", "Restart", "Quit"};
-    for (size_t i = 0; i < options.size(); ++i) {
-        sf::Text text(font);
-        text.setString(options[i]);
-        text.setCharacterSize(40);
-        text.setFillColor(i == 0 ? sf::Color::Red : sf::Color::White);
-        
-        sf::FloatRect bounds = text.getLocalBounds();
-        text.setOrigin(sf::Vector2f(bounds.position.x + bounds.size.x / 2.0f, bounds.position.y + bounds.size.y / 2.0f));
-        text.setPosition(sf::Vector2f(width / 2.0f, height / 2.0f + i * 60.0f));
-        
-        menuItems.push_back(text);
+void Menu::updateMenuVisuals(std::vector<sf::Text>& items) {
+    for (size_t i = 0; i < items.size(); ++i) {
+        items[i].setFillColor(i == static_cast<size_t>(selectedItem) ? sf::Color::Red : sf::Color::White);
     }
 }
 
 void Menu::draw(sf::RenderWindow& window) {
-    if (!active) return;
+    if (currentState == MenuState::Inactive) return;
 
     window.draw(overlay);
-    window.draw(pauseText);
-    for (const auto& item : menuItems) {
-        window.draw(item);
+    
+    std::string title = "NEED FOR DRIVE";
+    if (currentState == MenuState::SPLaps) title = "SELECT LAPS (SP)";
+    else if (currentState == MenuState::MPLaps) title = "SELECT LAPS (MP)";
+    else if (currentState == MenuState::Pause) title = "PAUSE";
+
+    titleText.setString(title);
+    sf::FloatRect bounds = titleText.getLocalBounds();
+    titleText.setOrigin({bounds.size.x / 2.0f, bounds.size.y / 2.0f});
+    titleText.setPosition({width / 2.0f, height / 5.0f});
+    window.draw(titleText);
+
+    std::vector<sf::Text>* currentItems = nullptr;
+    if (currentState == MenuState::MainMenu) currentItems = &mainMenuItems;
+    else if (currentState == MenuState::SPLaps) currentItems = &spLapsItems;
+    else if (currentState == MenuState::MPLaps) currentItems = &mpLapsItems;
+    else if (currentState == MenuState::Pause) currentItems = &pauseMenuItems;
+
+    if (currentItems) {
+        for (const auto& item : *currentItems) {
+            window.draw(item);
+        }
     }
 }
 
 void Menu::moveUp() {
-    if (!active) return;
+    int size = 0;
+    if (currentState == MenuState::MainMenu) size = mainMenuItems.size();
+    else if (currentState == MenuState::SPLaps) size = spLapsItems.size();
+    else if (currentState == MenuState::MPLaps) size = mpLapsItems.size();
+    else if (currentState == MenuState::Pause) size = pauseMenuItems.size();
+
     if (selectedItem - 1 >= 0) {
-        menuItems[selectedItem].setFillColor(sf::Color::White);
         selectedItem--;
-        menuItems[selectedItem].setFillColor(sf::Color::Red);
+    } else {
+        selectedItem = size - 1;
     }
+
+    if (currentState == MenuState::MainMenu) updateMenuVisuals(mainMenuItems);
+    else if (currentState == MenuState::SPLaps) updateMenuVisuals(spLapsItems);
+    else if (currentState == MenuState::MPLaps) updateMenuVisuals(mpLapsItems);
+    else if (currentState == MenuState::Pause) updateMenuVisuals(pauseMenuItems);
 }
 
 void Menu::moveDown() {
-    if (!active) return;
-    if (selectedItem + 1 < static_cast<int>(menuItems.size())) {
-        menuItems[selectedItem].setFillColor(sf::Color::White);
+    int size = 0;
+    if (currentState == MenuState::MainMenu) size = mainMenuItems.size();
+    else if (currentState == MenuState::SPLaps) size = spLapsItems.size();
+    else if (currentState == MenuState::MPLaps) size = mpLapsItems.size();
+    else if (currentState == MenuState::Pause) size = pauseMenuItems.size();
+
+    if (selectedItem + 1 < size) {
         selectedItem++;
-        menuItems[selectedItem].setFillColor(sf::Color::Red);
+    } else {
+        selectedItem = 0;
     }
+
+    if (currentState == MenuState::MainMenu) updateMenuVisuals(mainMenuItems);
+    else if (currentState == MenuState::SPLaps) updateMenuVisuals(spLapsItems);
+    else if (currentState == MenuState::MPLaps) updateMenuVisuals(mpLapsItems);
+    else if (currentState == MenuState::Pause) updateMenuVisuals(pauseMenuItems);
 }
 
 int Menu::getPressedItem() const {
@@ -72,16 +109,39 @@ int Menu::getPressedItem() const {
 }
 
 bool Menu::isActive() const {
-    return active;
+    return currentState != MenuState::Inactive;
 }
 
-void Menu::toggle() {
-    active = !active;
-    if (active) resetSelection();
-}
-
-void Menu::resetSelection() {
+void Menu::setState(MenuState state) {
+    currentState = state;
     selectedItem = 0;
-    for (auto& item : menuItems) item.setFillColor(sf::Color::White);
-    menuItems[0].setFillColor(sf::Color::Red);
+     
+    if (currentState == MenuState::MainMenu) updateMenuVisuals(mainMenuItems);
+    else if (currentState == MenuState::SPLaps) updateMenuVisuals(spLapsItems);
+    else if (currentState == MenuState::MPLaps) updateMenuVisuals(mpLapsItems);
+    else if (currentState == MenuState::Pause) updateMenuVisuals(pauseMenuItems);
+}
+
+MenuState Menu::getState() const {
+    return currentState;
+}
+
+int Menu::getSelectedLapsSP() const {
+    switch (selectedItem) {
+        case 0: return -1;  
+        case 1: return 4;
+        case 2: return 6;
+        case 3: return 10;
+        default: return 0;  
+    }
+}
+
+int Menu::getSelectedLapsMP() const {
+    switch (selectedItem) {
+        case 0: return 2;
+        case 1: return 4;
+        case 2: return 8;
+        case 3: return 10;
+        default: return 0;  
+    }
 }
