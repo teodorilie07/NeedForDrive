@@ -236,7 +236,7 @@ void Game::update(float dTime) {
     gameCircuit.simulat(dTime);
     
      
-    if (car* p1 = gameCircuit.getCar(0)) {
+    if (const car* p1 = gameCircuit.getCar(0)) {
         int lapP1 = checkpointManager.getLaps(0);
         int lapP2 = isMultiplayer ? checkpointManager.getLaps(1) : 0;
         int cpP1 = checkpointManager.getNextCheckpointIndex(0);
@@ -244,7 +244,7 @@ void Game::update(float dTime) {
         
         int damageP2 = 0;
         if (isMultiplayer) {
-            if (car* p2 = gameCircuit.getCar(1)) {
+            if (const car* p2 = gameCircuit.getCar(1)) {
                 damageP2 = p2->getDamage();
             }
         }
