@@ -33,6 +33,4 @@ public:
     void addEntry(const std::string& name, int laps);
     
     void draw(sf::RenderWindow& window, float width, float height);
-    
-    const std::vector<Entry>& getEntries() const { return entries; }
 };
