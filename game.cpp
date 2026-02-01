@@ -256,6 +256,17 @@ void Game::update(float dTime) {
     for (const auto& msg : msgs) {
         hud.showMessage(msg);
     }
+
+    achievementManager.update(dTime);
+    if (car* p1 = gameCircuit.getCar(0)) {
+        achievementManager.check(isMultiplayer,
+            checkpointManager.getLaps(0),
+            p1->getCollectedPowerUps(),
+            p1->getFuel(),
+            p1->getDamage(),
+            p1->getDamageMax()
+        );
+    }
 }
 
 void Game::render() {
@@ -288,6 +299,8 @@ void Game::render() {
     if (!menu.isActive()) {
         hud.draw(window);
     }
+
+    achievementManager.draw(window);
 
     if (isGameOver) {
         hud.drawGameOver(window, cachedPowerUps[0], cachedLaps[0], winnerName); 

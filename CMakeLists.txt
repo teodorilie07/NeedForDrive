@@ -68,6 +68,8 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         hud.h
         game.h
         erori.h
+        achievement.cpp
+        achievement.h
 )
 
 

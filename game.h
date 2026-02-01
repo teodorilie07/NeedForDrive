@@ -6,6 +6,7 @@
 #include "hud.h"
 #include "menu.h"
 #include "resource_manager.h"
+#include "achievement.h"
 
 class Game {
 private:
@@ -18,6 +19,7 @@ private:
     CheckpointManager checkpointManager;
     HUD hud;
     Menu menu;
+    AchievementManager achievementManager;
 
     bool isGameOver;
     bool isMultiplayer;
