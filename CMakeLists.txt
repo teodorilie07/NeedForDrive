@@ -70,6 +70,8 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         erori.h
         achievement.cpp
         achievement.h
+        leaderboard.cpp
+        leaderboard.h
 )
 
 

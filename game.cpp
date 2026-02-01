@@ -12,6 +12,9 @@ Game::Game()
       menu(1024.f, 640.f),
       isGameOver(false),
       isMultiplayer(false),
+      isEnteringName(false),
+      nameInputText(ResourceManager<sf::Font>::getInstance().get("C:/Windows/Fonts/arial.ttf")),
+      namePromptText(ResourceManager<sf::Font>::getInstance().get("C:/Windows/Fonts/arial.ttf")),
       targetLaps(-1)
 {
     window.setFramerateLimit(60);
@@ -19,6 +22,23 @@ Game::Game()
     cachedPowerUps[0] = 0; cachedPowerUps[1] = 0;
     cachedLaps[0] = 0; cachedLaps[1] = 0;
     
+    // Setup Name Input UI
+    namePromptText.setString("Enter Name:");
+    namePromptText.setCharacterSize(30);
+    namePromptText.setFillColor(sf::Color::White);
+    namePromptText.setPosition({1024.f/2.f - 100.f, 640.f/2.f - 50.f});
+    
+    nameInputText.setString("");
+    nameInputText.setCharacterSize(30);
+    nameInputText.setFillColor(sf::Color::Yellow);
+    nameInputText.setPosition({1024.f/2.f - 100.f, 640.f/2.f});
+    
+    nameInputBox.setSize({300.f, 50.f});
+    nameInputBox.setFillColor(sf::Color(50, 50, 50));
+    nameInputBox.setOutlineColor(sf::Color::White);
+    nameInputBox.setOutlineThickness(2.f);
+    nameInputBox.setPosition({1024.f/2.f - 150.f, 640.f/2.f});
+
     resetGame(false, -1);
 }
 
@@ -26,6 +46,9 @@ void Game::resetGame(bool multiplayer, int laps) {
     isMultiplayer = multiplayer;
     targetLaps = laps;
     winnerName = "";
+    isEnteringName = false;
+    playerNameInput = "";
+    nameInputText.setString("");
     
     gameCircuit = circuit("Circuitul Monza");
     checkpointManager = CheckpointManager();
@@ -111,9 +134,31 @@ void Game::run() {
 void Game::processEvents() {
     while (const auto event = window.pollEvent()) {
         if (event->is<sf::Event::Closed>()) window.close();
+
+        if (isEnteringName) {
+            if (const auto* textEvent = event->getIf<sf::Event::TextEntered>()) {
+                if (textEvent->unicode == '\b') { // Backspace
+                    if (!playerNameInput.empty()) {
+                        playerNameInput.pop_back();
+                    }
+                } else if (textEvent->unicode == '\r' || textEvent->unicode == '\n') { // Enter
+                    if (!playerNameInput.empty()) {
+                        leaderboard.addEntry(playerNameInput, cachedLaps[0]);
+                        isEnteringName = false;
+                    }
+                } else if (textEvent->unicode < 128) {
+                    if (playerNameInput.size() < 10) { // Limit name length
+                        playerNameInput += static_cast<char>(textEvent->unicode);
+                    }
+                }
+                nameInputText.setString(playerNameInput);
+            }
+        }
         
         if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
-             
+            
+            if (isEnteringName) continue;
+
             if (menu.isActive()) {
                 if (keyPressed->code == sf::Keyboard::Key::W || keyPressed->code == sf::Keyboard::Key::Up) {
                     menu.moveUp();
@@ -229,6 +274,9 @@ void Game::update(float dTime) {
     }
 
     if (!anyAlive) {
+        if (!isGameOver && !isMultiplayer && targetLaps == -1) {
+             isEnteringName = true;
+        }
         isGameOver = true;
         return;
     }
@@ -258,7 +306,7 @@ void Game::update(float dTime) {
     }
 
     achievementManager.update(dTime);
-    if (car* p1 = gameCircuit.getCar(0)) {
+    if (const car* p1 = gameCircuit.getCar(0)) {
         achievementManager.check(isMultiplayer,
             checkpointManager.getLaps(0),
             p1->getCollectedPowerUps(),
@@ -303,7 +351,28 @@ void Game::render() {
     achievementManager.draw(window);
 
     if (isGameOver) {
-        hud.drawGameOver(window, cachedPowerUps[0], cachedLaps[0], winnerName); 
+        if (isEnteringName) {
+            window.draw(nameInputBox);
+            window.draw(namePromptText);
+            
+            sf::FloatRect bounds = nameInputText.getLocalBounds();
+            nameInputText.setOrigin({bounds.size.x / 2.f, bounds.size.y / 2.f});
+            nameInputText.setPosition({nameInputBox.getPosition().x + nameInputBox.getSize().x / 2.f, 
+                                      nameInputBox.getPosition().y + nameInputBox.getSize().y / 2.f});
+            window.draw(nameInputText);
+        }
+        else if (!isMultiplayer && targetLaps == -1) {
+            leaderboard.draw(window, 1024.f, 640.f);
+            
+             // Draw small hint to restart
+             sf::Text hint(ResourceManager<sf::Font>::getInstance().get("C:/Windows/Fonts/arial.ttf"), "Press R to Restart / Q to Quit", 20);
+             hint.setFillColor(sf::Color::White);
+             hint.setPosition({1024.f/2.f - 120.f, 600.f});
+             window.draw(hint);
+        }
+        else {
+            hud.drawGameOver(window, cachedPowerUps[0], cachedLaps[0], winnerName); 
+        }
     }
 
     if (menu.isActive()) {

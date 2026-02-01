@@ -7,6 +7,7 @@
 #include "menu.h"
 #include "resource_manager.h"
 #include "achievement.h"
+#include "leaderboard.h"
 
 class Game {
 private:
@@ -20,9 +21,16 @@ private:
     HUD hud;
     Menu menu;
     AchievementManager achievementManager;
+    Leaderboard leaderboard;
 
     bool isGameOver;
     bool isMultiplayer;
+    bool isEnteringName; 
+    std::string playerNameInput;
+    sf::Text nameInputText;
+    sf::Text namePromptText;
+    sf::RectangleShape nameInputBox;
+
     int targetLaps;
     int lastLap[2];  
     int cachedPowerUps[2];
