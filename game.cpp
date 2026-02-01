@@ -15,7 +15,8 @@ Game::Game()
       isEnteringName(false),
       nameInputText(ResourceManager<sf::Font>::getInstance().get("C:/Windows/Fonts/arial.ttf")),
       namePromptText(ResourceManager<sf::Font>::getInstance().get("C:/Windows/Fonts/arial.ttf")),
-      targetLaps(-1)
+      targetLaps(-1),
+      currentLapTime(0.0f)
 {
     window.setFramerateLimit(60);
     lastLap[0] = 0; lastLap[1] = 0;
@@ -39,16 +40,23 @@ Game::Game()
     nameInputBox.setOutlineThickness(2.f);
     nameInputBox.setPosition({1024.f/2.f - 150.f, 640.f/2.f});
 
-    resetGame(false, -1);
+    resetGame(false, -1, GameMode::Standard);
 }
 
-void Game::resetGame(bool multiplayer, int laps) {
+void Game::resetGame(bool multiplayer, int laps, GameMode mode) {
     isMultiplayer = multiplayer;
     targetLaps = laps;
+    currentMode = mode;
     winnerName = "";
     isEnteringName = false;
     playerNameInput = "";
     nameInputText.setString("");
+    
+    currentLapTime = 0.0f;
+    if (currentMode == GameMode::Ghost) {
+        ghostManager.reset();
+        ghostManager.startLap();
+    }
     
     gameCircuit = circuit("Circuitul Monza");
     checkpointManager = CheckpointManager();
@@ -171,16 +179,17 @@ void Game::processEvents() {
                     int selection = menu.getPressedItem();
 
                     if (state == MenuState::MainMenu) {
-                        if (selection == 0) menu.setState(MenuState::SPLaps);
+                        if (selection == 0) menu.setState(MenuState::SPModes); // Changed from SPLaps
                         else if (selection == 1) menu.setState(MenuState::MPLaps);
                         else if (selection == 2) window.close();
                     }
-                    else if (state == MenuState::SPLaps) {
-                        int laps = menu.getSelectedLapsSP();
-                        if (laps == 0 && selection == 4) {  
+                    else if (state == MenuState::SPModes) {
+                        GameMode mode = menu.getSelectedGameMode();
+                        if (selection == 3) { // Back
                             menu.setState(MenuState::MainMenu);
                         } else {
-                            resetGame(false, laps);
+                            // Singleplayer is always Infinite (-1) in these modes
+                            resetGame(false, -1, mode);
                             menu.setState(MenuState::Inactive);
                         }
                     }
@@ -196,7 +205,7 @@ void Game::processEvents() {
                     else if (state == MenuState::Pause) {
                         if (selection == 0) menu.setState(MenuState::Inactive);  
                         else if (selection == 1) {  
-                            resetGame(isMultiplayer, targetLaps);
+                            resetGame(isMultiplayer, targetLaps, currentMode);
                             menu.setState(MenuState::Inactive);
                         }
                         else if (selection == 2) menu.setState(MenuState::MainMenu);  
@@ -205,7 +214,7 @@ void Game::processEvents() {
             } 
             else if (isGameOver) {
                 if (keyPressed->code == sf::Keyboard::Key::R) {
-                    resetGame(isMultiplayer, targetLaps);
+                    resetGame(isMultiplayer, targetLaps, currentMode);
                 } else if (keyPressed->code == sf::Keyboard::Key::Q) {
                     menu.setState(MenuState::MainMenu);
                     isGameOver = false;  
@@ -243,7 +252,31 @@ void Game::update(float dTime) {
                 gameCircuit.regeneratePowerUps();
                 hud.showMessage("PowerUps Regenerate!");
             }
+            
+            // Logic for Ghost Mode Lap Finish
+            if (currentMode == GameMode::Ghost && i == 0) {
+                 ghostManager.finishLap(currentLapTime);
+                 ghostManager.startLap(); // Start recording new lap
+                 currentLapTime = 0.0f; // Reset timer
+            }
+            
             lastLap[i] = currentLap;
+        }
+        
+        // Update timer for Ghost Mode
+        if (currentMode == GameMode::Ghost && i == 0) {
+            currentLapTime += dTime;
+            ghostManager.recordFrame(*pCar, currentLapTime);
+            ghostManager.updateAnimation(currentLapTime);
+        }
+        
+        // Logic for Fuel Efficiency Mode
+        if (currentMode == GameMode::FuelEfficiency) {
+             // Extra consumption: 
+             // Normal consumption is handled in car::uptState inside car.cpp (consum * 0.05 * dTime)
+             // We apply extra reduction here.
+             double extraConsumption = 10.0 * dTime; // Arbitrary value
+             pCar->modifyFuel(-extraConsumption);
         }
 
          
@@ -329,6 +362,11 @@ void Game::render() {
 
     for (const auto& obs : gameCircuit.getObstacole()) {
         obs.draw(window);
+    }
+    
+    // Draw Ghost
+    if (currentMode == GameMode::Ghost) {
+        ghostManager.draw(window);
     }
 
     for (const auto& pwrUp : gameCircuit.getPowerUps()) {

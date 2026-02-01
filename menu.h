@@ -10,9 +10,15 @@
 #include <string>
 #include <iostream>
 
+enum class GameMode {
+    Standard,
+    Ghost,
+    FuelEfficiency
+};
+
 enum class MenuState {
     MainMenu,
-    SPLaps,
+    SPModes, // Changed from SPLaps
     MPLaps,
     Pause,
     Inactive
@@ -27,7 +33,7 @@ private:
     
      
     std::vector<sf::Text> mainMenuItems;
-    std::vector<sf::Text> spLapsItems;
+    std::vector<sf::Text> spModesItems; // Changed from spLapsItems
     std::vector<sf::Text> mpLapsItems;
     std::vector<sf::Text> pauseMenuItems;
 
@@ -47,7 +53,6 @@ public:
     void setState(MenuState state);
     MenuState getState() const;
     
-     
-    int getSelectedLapsSP() const;
+    GameMode getSelectedGameMode() const; // New function
     int getSelectedLapsMP() const;
 };

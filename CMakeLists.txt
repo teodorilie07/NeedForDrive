@@ -72,6 +72,8 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         achievement.h
         leaderboard.cpp
         leaderboard.h
+        ghost.cpp
+        ghost.h
 )
 
 

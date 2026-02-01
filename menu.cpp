@@ -26,7 +26,7 @@ Menu::Menu(float width, float height)
     };
 
     initMenu(mainMenuItems, {"Singleplayer", "Multiplayer", "Exit"});
-    initMenu(spLapsItems, {"Infinite", "4 Laps", "6 Laps", "10 Laps", "Back"});
+    initMenu(spModesItems, {"Standard Infinite", "Ghost Mode", "Fuel Efficiency", "Back"});
     initMenu(mpLapsItems, {"2 Laps", "4 Laps", "8 Laps", "10 Laps", "Back"});
     initMenu(pauseMenuItems, {"Resume", "Restart", "Main Menu"});
 }
@@ -43,7 +43,7 @@ void Menu::draw(sf::RenderWindow& window) {
     window.draw(overlay);
     
     std::string title = "NEED FOR DRIVE";
-    if (currentState == MenuState::SPLaps) title = "SELECT LAPS (SP)";
+    if (currentState == MenuState::SPModes) title = "SELECT MODE (Infinite)";
     else if (currentState == MenuState::MPLaps) title = "SELECT LAPS (MP)";
     else if (currentState == MenuState::Pause) title = "PAUSE";
 
@@ -55,7 +55,7 @@ void Menu::draw(sf::RenderWindow& window) {
 
     const std::vector<sf::Text>* currentItems = nullptr;
     if (currentState == MenuState::MainMenu) currentItems = &mainMenuItems;
-    else if (currentState == MenuState::SPLaps) currentItems = &spLapsItems;
+    else if (currentState == MenuState::SPModes) currentItems = &spModesItems;
     else if (currentState == MenuState::MPLaps) currentItems = &mpLapsItems;
     else if (currentState == MenuState::Pause) currentItems = &pauseMenuItems;
 
@@ -69,7 +69,7 @@ void Menu::draw(sf::RenderWindow& window) {
 void Menu::moveUp() {
     int size = 0;
     if (currentState == MenuState::MainMenu) size = mainMenuItems.size();
-    else if (currentState == MenuState::SPLaps) size = spLapsItems.size();
+    else if (currentState == MenuState::SPModes) size = spModesItems.size();
     else if (currentState == MenuState::MPLaps) size = mpLapsItems.size();
     else if (currentState == MenuState::Pause) size = pauseMenuItems.size();
 
@@ -80,7 +80,7 @@ void Menu::moveUp() {
     }
 
     if (currentState == MenuState::MainMenu) updateMenuVisuals(mainMenuItems);
-    else if (currentState == MenuState::SPLaps) updateMenuVisuals(spLapsItems);
+    else if (currentState == MenuState::SPModes) updateMenuVisuals(spModesItems);
     else if (currentState == MenuState::MPLaps) updateMenuVisuals(mpLapsItems);
     else if (currentState == MenuState::Pause) updateMenuVisuals(pauseMenuItems);
 }
@@ -88,7 +88,7 @@ void Menu::moveUp() {
 void Menu::moveDown() {
     int size = 0;
     if (currentState == MenuState::MainMenu) size = mainMenuItems.size();
-    else if (currentState == MenuState::SPLaps) size = spLapsItems.size();
+    else if (currentState == MenuState::SPModes) size = spModesItems.size();
     else if (currentState == MenuState::MPLaps) size = mpLapsItems.size();
     else if (currentState == MenuState::Pause) size = pauseMenuItems.size();
 
@@ -99,7 +99,7 @@ void Menu::moveDown() {
     }
 
     if (currentState == MenuState::MainMenu) updateMenuVisuals(mainMenuItems);
-    else if (currentState == MenuState::SPLaps) updateMenuVisuals(spLapsItems);
+    else if (currentState == MenuState::SPModes) updateMenuVisuals(spModesItems);
     else if (currentState == MenuState::MPLaps) updateMenuVisuals(mpLapsItems);
     else if (currentState == MenuState::Pause) updateMenuVisuals(pauseMenuItems);
 }
@@ -117,7 +117,7 @@ void Menu::setState(MenuState state) {
     selectedItem = 0;
      
     if (currentState == MenuState::MainMenu) updateMenuVisuals(mainMenuItems);
-    else if (currentState == MenuState::SPLaps) updateMenuVisuals(spLapsItems);
+    else if (currentState == MenuState::SPModes) updateMenuVisuals(spModesItems);
     else if (currentState == MenuState::MPLaps) updateMenuVisuals(mpLapsItems);
     else if (currentState == MenuState::Pause) updateMenuVisuals(pauseMenuItems);
 }
@@ -126,13 +126,12 @@ MenuState Menu::getState() const {
     return currentState;
 }
 
-int Menu::getSelectedLapsSP() const {
+GameMode Menu::getSelectedGameMode() const {
     switch (selectedItem) {
-        case 0: return -1;  
-        case 1: return 4;
-        case 2: return 6;
-        case 3: return 10;
-        default: return 0;  
+        case 0: return GameMode::Standard;
+        case 1: return GameMode::Ghost;
+        case 2: return GameMode::FuelEfficiency;
+        default: return GameMode::Standard;
     }
 }
 

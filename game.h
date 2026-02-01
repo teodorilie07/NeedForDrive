@@ -8,6 +8,7 @@
 #include "resource_manager.h"
 #include "achievement.h"
 #include "leaderboard.h"
+#include "ghost.h"
 
 class Game {
 private:
@@ -22,9 +23,12 @@ private:
     Menu menu;
     AchievementManager achievementManager;
     Leaderboard leaderboard;
+    GhostManager ghostManager;
 
     bool isGameOver;
     bool isMultiplayer;
+    GameMode currentMode; // New member
+
     bool isEnteringName; 
     std::string playerNameInput;
     sf::Text nameInputText;
@@ -32,6 +36,8 @@ private:
     sf::RectangleShape nameInputBox;
 
     int targetLaps;
+    float currentLapTime; // Track lap time for ghost
+    
     int lastLap[2];  
     int cachedPowerUps[2];
     int cachedLaps[2];
@@ -40,7 +46,7 @@ private:
     void processEvents();
     void update(float dTime);
     void render();
-    void resetGame(bool multiplayer, int laps);
+    void resetGame(bool multiplayer, int laps, GameMode mode = GameMode::Standard);
 
 public:
     Game();
