@@ -17,7 +17,6 @@ private:
     
     sf::Sprite ghostSprite;
     bool hasBestLap;
-    float playbackTimer;
 
 public:
     GhostManager();
@@ -29,6 +28,5 @@ public:
     void updateAnimation(float lapTime);
     void draw(sf::RenderWindow& window);
     
-    bool hasGhost() const;
     void reset();
 };

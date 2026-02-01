@@ -4,8 +4,7 @@
 
 GhostManager::GhostManager() 
     : ghostSprite(ResourceManager<sf::Texture>::getInstance().get("assets/car.png")),
-      hasBestLap(false), 
-      playbackTimer(0.0f) 
+      hasBestLap(false) 
 {
     // Texture is already set via initializer list
     
@@ -73,10 +72,6 @@ void GhostManager::draw(sf::RenderWindow& window) {
         ghostSprite.setColor(sf::Color(255, 255, 255, 100));
         window.draw(ghostSprite);
     }
-}
-
-bool GhostManager::hasGhost() const {
-    return hasBestLap;
 }
 
 void GhostManager::reset() {
