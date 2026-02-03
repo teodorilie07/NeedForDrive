@@ -219,7 +219,7 @@ void circuit::incarcaFisier(const std::string& cale)
                     powerUpSpawnPoints.emplace_back(x, y);
                 } else if (tipPowerUp == 5) {
                      
-                    addPowerUp(PowerUpFactory::createPowerUp("motorfix", vector(x, y), texPwr));
+                    addPowerUp(PowerUpFactory::createPowerUp(PowerUpType::MotorFix, vector(x, y), texPwr));
                 }
             }
         }
@@ -264,18 +264,18 @@ void circuit::regeneratePowerUps()
         vector pos = powerUpSpawnPoints[i];
         
         if (std::abs(pos.getx() - 640.f) < 1.0f && std::abs(pos.gety() - 575.f) < 1.0f) {
-             addPowerUp(PowerUpFactory::createPowerUp("motorfix", pos, texPwr));
+             addPowerUp(PowerUpFactory::createPowerUp(PowerUpType::MotorFix, pos, texPwr));
         } else {
             int type = types[i];
-            std::string typeStr;
+            PowerUpType pType = PowerUpType::Kit;
             switch (type) {
-                case 1: typeStr = "kit"; break;
-                case 2: typeStr = "boost"; break;
-                case 3: typeStr = "refill"; break;
-                case 4: typeStr = "penalizare"; break;
-                default: typeStr = "kit"; break;
+                case 1: pType = PowerUpType::Kit; break;
+                case 2: pType = PowerUpType::Boost; break;
+                case 3: pType = PowerUpType::Refill; break;
+                case 4: pType = PowerUpType::Penalizare; break;
+                default: pType = PowerUpType::Kit; break;
             }
-            addPowerUp(PowerUpFactory::createPowerUp(typeStr, pos, texPwr, refillAmount));
+            addPowerUp(PowerUpFactory::createPowerUp(pType, pos, texPwr, refillAmount));
         }
     }
     std::cout << "[INFO] PowerUps regenerate.\n";

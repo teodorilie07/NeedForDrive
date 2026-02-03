@@ -5,7 +5,7 @@
 
 AchievementManager::AchievementManager() 
     : notificationTimer(0.0f),
-      font(ResourceManager<sf::Font>::getInstance().get("C:/Windows/Fonts/arial.ttf")),
+      font(ResourceManager<sf::Font>::getInstance().get("assets/arial.ttf")),
       notifTitle(font, "ACHIEVEMENT UNLOCKED!", 14),
       notifName(font, "", 18)
 {

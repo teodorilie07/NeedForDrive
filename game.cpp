@@ -13,8 +13,8 @@ Game::Game()
       isGameOver(false),
       isMultiplayer(false),
       isEnteringName(false),
-      nameInputText(ResourceManager<sf::Font>::getInstance().get("C:/Windows/Fonts/arial.ttf")),
-      namePromptText(ResourceManager<sf::Font>::getInstance().get("C:/Windows/Fonts/arial.ttf")),
+      nameInputText(ResourceManager<sf::Font>::getInstance().get("assets/arial.ttf")),
+      namePromptText(ResourceManager<sf::Font>::getInstance().get("assets/arial.ttf")),
       targetLaps(-1),
       currentLapTime(0.0f)
 {
@@ -403,7 +403,7 @@ void Game::render() {
             leaderboard.draw(window, 1024.f, 640.f);
             
              // Draw small hint to restart
-             sf::Text hint(ResourceManager<sf::Font>::getInstance().get("C:/Windows/Fonts/arial.ttf"), "Press R to Restart / Q to Quit", 20);
+             sf::Text hint(ResourceManager<sf::Font>::getInstance().get("assets/arial.ttf"), "Press R to Restart / Q to Quit", 20);
              hint.setFillColor(sf::Color::White);
              hint.setPosition({1024.f/2.f - 120.f, 600.f});
              window.draw(hint);

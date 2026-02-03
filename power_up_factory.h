@@ -9,7 +9,15 @@
 #include "motorfix.h"
 #include "vector.h"
 
+enum class PowerUpType {
+    Boost,
+    Kit,
+    Penalizare,
+    Refill,
+    MotorFix
+};
+
 class PowerUpFactory {
 public:
-    static std::unique_ptr<PowerUp> createPowerUp(const std::string& type, const vector& poz, sf::Texture& tex, int value = 100);
+    static std::unique_ptr<PowerUp> createPowerUp(PowerUpType type, const vector& poz, sf::Texture& tex, int value = 100);
 };

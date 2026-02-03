@@ -5,7 +5,7 @@
 #include <sstream>
 
 HUD::HUD(float screenWidth, float screenHeight) : 
-    font(ResourceManager<sf::Font>::getInstance().get("C:/Windows/Fonts/arial.ttf")),
+    font(ResourceManager<sf::Font>::getInstance().get("assets/arial.ttf")),
     fuelLabel(font, "FUEL", 15),
     speedText(font),
     damageText(font),

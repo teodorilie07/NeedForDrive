@@ -4,7 +4,7 @@
 #include <sstream>
 
 Leaderboard::Leaderboard() : 
-    font(ResourceManager<sf::Font>::getInstance().get("C:/Windows/Fonts/arial.ttf")),
+    font(ResourceManager<sf::Font>::getInstance().get("assets/arial.ttf")),
     titleText(font)
 {
     titleText.setString("HIGH SCORES (INFINITE)");

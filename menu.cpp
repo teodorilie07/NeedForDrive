@@ -3,7 +3,7 @@
 
 Menu::Menu(float width, float height) 
     : currentState(MenuState::MainMenu), selectedItem(0),
-      font(ResourceManager<sf::Font>::getInstance().get("C:/Windows/Fonts/arial.ttf")),
+      font(ResourceManager<sf::Font>::getInstance().get("assets/arial.ttf")),
       titleText(font), width(width), height(height)
 {
     overlay.setSize({width, height});
